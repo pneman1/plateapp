@@ -1,0 +1,2 @@
+# plateapp
+The Plate Loop is a social, real-time food discovery application. It utilizes a "Live-Only" photo capture mechanism to ensure authenticity. The system leverages geolocation to create a community-driven "Heatmap" of local food trends while maintaining a "Social Lock" on friend content to encourage daily participation.
