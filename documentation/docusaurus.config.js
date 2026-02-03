@@ -19,9 +19,9 @@ const config = {
     v4: true, // Improve compatibility with the upcoming Docusaurus v4
   },
 
-  url: 'https://pnem.github.io',
+  url: 'https://pneman1.github.io',
 baseUrl: '/plateapp/',
-organizationName: 'pnem',
+organizationName: 'pneman1',
 projectName: 'plateapp',
 deploymentBranch: 'gh-pages',
 
