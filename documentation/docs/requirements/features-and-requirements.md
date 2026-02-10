@@ -29,3 +29,4 @@ sidebar_position: 4
 * Security: Communication must be handled via HTTPS. User data must be protected by Firestore Security Rules to prevent unauthorized access to blurred images.
 * Privacy: A "Ghost Mode" must be available to allow users to post to their friends without their exact coordinates appearing on the public heatmap.
 * If user posts a home cooked meal, they can choose to make the location not accurate (a radius)
+* Symmetric Friends: Like Facebook or LinkedIn. Authenticity thrives in tight-knit groups. People are more likely to post a "real" (perhaps messy) plate of tacos to 10 friends than to 1,000 strangers.
