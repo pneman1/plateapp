@@ -9,6 +9,9 @@ import SwiftUI
 
 @main
 struct PlateAppApp: App {
+    
+    // register app delegate for firebase setup
+    @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
     var body: some Scene {
         WindowGroup {
             ContentView()

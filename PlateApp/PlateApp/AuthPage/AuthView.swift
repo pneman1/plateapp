@@ -16,7 +16,7 @@ struct AuthView: View {
     @State var showPicker = false
     
     var body: some View {
-        VStack(alignment: .center) {
+        VStack(alignment: .center, spacing: 50) {
             Text("Log in with Phone Number")
                 .font(.title)
                 .bold()
@@ -45,10 +45,20 @@ struct AuthView: View {
                     .presentationDetents([.medium, .large])
             }
             
-            Button("Continue") {
-                // Action to perform when the button is tapped
-                print("Continue button tapped!")
+            Button(action: {
+                
+            }) {
+                Text("Continue")
+                    .fontWeight(.semibold)
+                    .frame(maxWidth: .infinity)
+                    .padding()
+                    .background(Color.purple)
+                    .foregroundColor(.white)
+                    .clipShape(.capsule)
             }
+            .padding(.horizontal)
+            .padding(.bottom)
+            
         
         }
     }
