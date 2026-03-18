@@ -6,7 +6,15 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		6653F1172F69BC5500471CAE /* GoogleService-Info-3.plist in Resources */ = {isa = PBXBuildFile; fileRef = 6653F1162F69BC5500471CAE /* GoogleService-Info-3.plist */; };
+		6653F11A2F69BCF300471CAE /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 6653F1192F69BCF300471CAE /* FirebaseAuth */; };
+		6653F11C2F69BCF300471CAE /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = 6653F11B2F69BCF300471CAE /* FirebaseFirestore */; };
+		6653F11E2F69BCF300471CAE /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = 6653F11D2F69BCF300471CAE /* FirebaseStorage */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
+		6653F1162F69BC5500471CAE /* GoogleService-Info-3.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info-3.plist"; sourceTree = "<group>"; };
 		66F158F02F61B70800ACA60A /* PlateApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PlateApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -23,6 +31,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6653F11A2F69BCF300471CAE /* FirebaseAuth in Frameworks */,
+				6653F11C2F69BCF300471CAE /* FirebaseFirestore in Frameworks */,
+				6653F11E2F69BCF300471CAE /* FirebaseStorage in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -34,6 +45,7 @@
 			children = (
 				66F158F22F61B70800ACA60A /* PlateApp */,
 				66F158F12F61B70800ACA60A /* Products */,
+				6653F1162F69BC5500471CAE /* GoogleService-Info-3.plist */,
 			);
 			sourceTree = "<group>";
 		};
@@ -65,6 +77,9 @@
 			);
 			name = PlateApp;
 			packageProductDependencies = (
+				6653F1192F69BCF300471CAE /* FirebaseAuth */,
+				6653F11B2F69BCF300471CAE /* FirebaseFirestore */,
+				6653F11D2F69BCF300471CAE /* FirebaseStorage */,
 			);
 			productName = PlateApp;
 			productReference = 66F158F02F61B70800ACA60A /* PlateApp.app */;
@@ -94,6 +109,9 @@
 			);
 			mainGroup = 66F158E72F61B70800ACA60A;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				6653F1182F69BCF300471CAE /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 66F158F12F61B70800ACA60A /* Products */;
 			projectDirPath = "";
@@ -109,6 +127,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6653F1172F69BC5500471CAE /* GoogleService-Info-3.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -324,6 +343,35 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		6653F1182F69BCF300471CAE /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 12.11.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		6653F1192F69BCF300471CAE /* FirebaseAuth */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 6653F1182F69BCF300471CAE /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAuth;
+		};
+		6653F11B2F69BCF300471CAE /* FirebaseFirestore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 6653F1182F69BCF300471CAE /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseFirestore;
+		};
+		6653F11D2F69BCF300471CAE /* FirebaseStorage */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 6653F1182F69BCF300471CAE /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseStorage;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 66F158E82F61B70800ACA60A /* Project object */;
 }
