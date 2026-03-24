@@ -7,52 +7,53 @@
 import SwiftUI
 
 struct FeedView: View {
-    let mockPosts: [Post] = [
-        Post(
-            postID: "1",
-            authorID: "rwind13",
-            imageURL: "https://i.imgur.com/RpzNeWO.jpeg",
-            caption: "Best banana bread in Philly!",
-            timestamp: Date().addingTimeInterval(-1800),
-            location: PlateLocation(
-                geopoint: GeoPoint(latitude: 39.95, longitude: -75.16),
-                geohash: "dr4e",
-                restaurantName: "Asian Kitchen"
-            ),
-            isPublic: true
-        ),
-        Post(
-            postID: "2",
-            authorID: "yasseen_eats",
-            imageURL: "https://i.imgur.com/d3XMjOK.jpeg",
-            caption: "Yummy berger",
-            timestamp: Date().addingTimeInterval(-3600),
-            location: PlateLocation(
-                geopoint: GeoPoint(latitude: 39.95, longitude: -75.16),
-                geohash: "dr4e",
-                restaurantName: "Pizza Palace"
-            ),
-            isPublic: true
-        ),
-        Post(
-            postID: "3",
-            authorID: "pranav_bites",
-            imageURL: "https://www.chelseasmessyapron.com/wp-content/uploads/2017/07/Summer-Chicken-Recipe-ChelseasMessyApron-1200-1.jpg",
-            caption: "Look at my food",
-            timestamp: Date().addingTimeInterval(-10000),
-            location: PlateLocation(
-                geopoint: GeoPoint(latitude: 39.95, longitude: -75.16),
-                geohash: "dr4e",
-                restaurantName: "Maxi's"
-            ),
-            isPublic: true
-        )
-    ]
+    @StateObject private var viewModel = FeedViewModel()
+    
+//    let mockPosts: [Post] = [
+//        Post(
+//            id: "1",
+//            authorID: "rwind13",
+//            imageURL: "https://i.imgur.com/RpzNeWO.jpeg",
+//            caption: "Best banana bread in Philly!",
+//            timestamp: Date().addingTimeInterval(-1800),
+//            location: PlateLocation(
+//                geopoint: GeoPoint(latitude: 39.95, longitude: -75.16),
+//                geohash: "dr4e",
+//                restaurantName: "Home Cooked"
+//            ),
+//            isPublic: true
+//        ),
+//        Post(
+//            id: "2",
+//            authorID: "yasseen_eats",
+//            imageURL: "https://i.imgur.com/d3XMjOK.jpeg",
+//            caption: "Yummy burger",
+//            timestamp: Date().addingTimeInterval(-3600),
+//            location: PlateLocation(
+//                geopoint: GeoPoint(latitude: 39.95, longitude: -75.16),
+//                geohash: "dr4e",
+//                restaurantName: "Burger World"
+//            ),
+//            isPublic: true
+//        ),
+//        Post(
+//            id: "3",
+//            authorID: "pranav_bites",
+//            imageURL: "https://i.imgur.com/YonPoxk.jpeg",
+//            caption: "Look at my food",
+//            timestamp: Date().addingTimeInterval(-10000),
+//            location: PlateLocation(
+//                geopoint: GeoPoint(latitude: 39.95, longitude: -75.16),
+//                geohash: "dr4e",
+//                restaurantName: "The Halal Shack"
+//            ),
+//            isPublic: true
+//        )
+//    ]
     
     @State private var userHasPostedToday: Bool = true
 
     var body: some View {
-        NavigationView {
             ZStack {
                 Color.black.ignoresSafeArea()
                 
@@ -61,17 +62,14 @@ struct FeedView: View {
                         Text("Plate!")
                             .font(.system(size: 28, weight: .black))
                             .foregroundColor(.white)
-                            .padding(.top, 5)
 
-                        ForEach(mockPosts) { post in
+                        ForEach(viewModel.posts) { post in
                             FeedCardView(post: post, isLocked: !userHasPostedToday)
                         }
                         
                         Spacer().frame(height: 50)
                     }
                 }
-            }
-            .navigationBarHidden(true)
         }
     }
 }
@@ -89,11 +87,11 @@ struct FeedCardView: View {
                     .foregroundColor(.gray)
                 
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(post.authorID)
+                    Text(post.userID)
                         .font(.system(size: 14, weight: .bold))
                         .foregroundColor(.white)
                     
-                    Text(timeAgo(post.timestamp))
+                    Text(post.timestamp)
                         .font(.system(size: 12))
                         .foregroundColor(.gray)
                 }
@@ -118,7 +116,7 @@ struct FeedCardView: View {
                 VStack(alignment: .leading, spacing: 4) {
                     HStack(alignment: .bottom) {
                         VStack(alignment: .leading, spacing: 2) {
-                            Text(post.location.restaurantName)
+                            Text(post.location)
                                 .font(.system(size: 20, weight: .semibold))
                             Text("Philadelphia, PA")
                                 .font(.system(size: 14, weight: .medium))

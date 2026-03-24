@@ -5,25 +5,23 @@
 //  Created by Yasseen Rouni on 3/11/26.
 //
 import Foundation
+import FirebaseFirestore
+import Firebase
 
 struct GeoPoint: Codable {
     let latitude: Double
     let longitude: Double
     
-    init(latitude: Double, longitude: Double) {
-        self.latitude = latitude
-        self.longitude = longitude
-    }
+    
 }
 
 struct Post: Identifiable, Codable {
-    var id: String { postID }
-    let postID: String
-    let authorID: String
+    @DocumentID var id: String?
+    let userID: String
     let imageURL: String
     let caption: String
-    let timestamp: Date
-    let location: PlateLocation
+    let timestamp: String
+    let location: String
     let isPublic: Bool
 }
 
