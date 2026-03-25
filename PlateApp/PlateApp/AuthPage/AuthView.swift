@@ -18,7 +18,7 @@ struct AuthView: View {
                 SignInView(showFeedView: $showFeedView)
             } label: {
                 VStack {
-                    Text("Sign in with Email")
+                    Text("Sign in with your Email")
                         .fontWeight(.semibold)
                         .frame(maxWidth: .infinity)
                         .padding()
@@ -28,6 +28,7 @@ struct AuthView: View {
                 }
                 .padding()
             }
+            .accessibilityIdentifier("signInLink")
         }
     }
 }

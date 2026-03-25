@@ -46,6 +46,11 @@ final class PlateAppUITests: XCTestCase {
         let app = XCUIApplication()
         app.launch()
         
-        XCTAssertTrue(false)
+        let signInLink = app.links["signInLink"]
+        XCTAssertTrue(signInLink.exists, "The signInLink navigation link should exist")
+        signInLink.tap()
+        
+        let signInViewTitle = app.staticTexts["Sign in with Email"]
+        XCTAssertTrue(signInViewTitle.waitForExistence(timeout: 5), "The sign in view should be displayed")
     }
 }
