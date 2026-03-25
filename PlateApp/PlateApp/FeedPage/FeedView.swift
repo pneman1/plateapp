@@ -125,7 +125,7 @@ struct FeedCardView: View {
                 } placeholder: {
                     Color.gray.opacity(0.2)
                 }
-                .frame(width: UIScreen.main.bounds.width - 40, height: 450)
+                .frame(width: UIScreen.main.bounds.width - 40, height: 350)
                 .clipShape(RoundedRectangle(cornerRadius: 30))
                 
                 VStack(alignment: .leading, spacing: 4) {
