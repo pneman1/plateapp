@@ -14,7 +14,9 @@ struct PlateAppApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            NavigationStack {
+                AuthView()
+            }
         }
     }
 }

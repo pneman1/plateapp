@@ -9,89 +9,53 @@ import SwiftUI
 
 
 struct AuthView: View {
-    @State var phoneNumber: String = ""
-    @State var y: CGFloat = 150
-    @State var countryCode = ""
-    @State var countryFlag = ""
-    @State var showPicker = false
+    @StateObject private var viewModel = AuthViewModel()
     
     var body: some View {
-        VStack(alignment: .center, spacing: 50) {
-            Text("Log in with Phone Number")
-                .font(.title)
-                .bold()
-            HStack(spacing: 0) {
-                Text(countryCode.isEmpty ? "🇺🇸 +1" : "\(countryFlag) +\(countryCode)")
-                    .frame(width: 80, height: 50)
-                    .background(Color.secondary.opacity(0.2))
-                    .cornerRadius(10)
-                    .foregroundColor(countryCode.isEmpty ? .secondary : .black)
-                    .onTapGesture {
-                        withAnimation (.spring()) {
-                            showPicker.toggle()
-                        }
+        ZStack {
+            Color.black.ignoresSafeArea()
+            
+            ZStack {
+                VStack(alignment: .center, spacing: 50) {
+                    Text("Log in with Email")
+                        .font(.title)
+                        .bold()
+                    VStack(alignment: .leading, spacing: 5) {
+                        Text("Email")
+                        TextField("example$@gmail.com", text: $viewModel.email)
+                            .padding()
+                            .keyboardType(.phonePad)
+                            .frame(width: 300, height: 50)
+                            .background(.white)
+                            .cornerRadius(6)
+                            .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color(.white), lineWidth: 1))
+                        Text("Password")
+                        TextField("Password", text: $viewModel.password)
+                            .padding()
+                            .keyboardType(.phonePad)
+                            .frame(width: 300, height: 50)
+                            .background(.white)
+                            .cornerRadius(6)
+                            .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color(.white), lineWidth: 1))
                     }
-                
-                TextField("111 111-1111", text: $phoneNumber)
-                    .padding()
-                    .keyboardType(.phonePad)
-            }
-            .frame(width: 250, height: 50)
-            .overlay(RoundedRectangle(cornerRadius: 10).stroke())
-            
-            
-            .sheet(isPresented: $showPicker) {
-                CountryCodeView(countryCode: $countryCode, countryFlag: $countryFlag, y: $y)
-                    .presentationDetents([.medium, .large])
-            }
-            
-            Button(action: {
-                
-            }) {
-                Text("Continue")
-                    .fontWeight(.semibold)
-                    .frame(maxWidth: .infinity)
-                    .padding()
-                    .background(Color.purple)
-                    .foregroundColor(.white)
-                    .clipShape(.capsule)
-            }
-            .padding(.horizontal)
-            .padding(.bottom)
-            
-        
-        }
-    }
-}
-
-struct CountryCodeView: View {
-    @Binding var countryCode : String
-    @Binding var countryFlag : String
-    @Binding var y : CGFloat
-    @Environment(\.dismiss) var dismiss
-    var model = AuthModel()
-
-    var body: some View {
-        NavigationView {
-            List(model.countryDictionary.sorted(by: { $0.key < $1.key }), id: \.key) { key, value in
-                HStack {
-                    Text("\(model.flag(country: key))")
-                    Text("\(model.countryName(countryCode: key) ?? key)")
-                    Spacer()
-                    Text("+\(value)").foregroundColor(.secondary)
-                }
-                .contentShape(Rectangle())
-                .background(Color.white)
-                .font(.system(size: 20))
-                .onTapGesture {
-                    self.countryCode = value
-                    self.countryFlag = model.flag(country: key)
-                    dismiss()
+                    
+                    Button(action: {
+                        viewModel.signIn()
+                    }) {
+                        Text("Continue")
+                            .fontWeight(.semibold)
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .background(Color(.primary))
+                            .foregroundColor(.white)
+                            .clipShape(.capsule)
+                    }
+                    .padding(.horizontal)
+                    .padding(.bottom)
+                    
                 }
             }
-            .navigationTitle("Select Country")
-            .navigationBarTitleDisplayMode(.inline)
-            
+            .foregroundStyle(.white)
         }
     }
 }
