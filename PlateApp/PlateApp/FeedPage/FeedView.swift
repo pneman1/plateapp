@@ -52,6 +52,8 @@ struct FeedView: View {
 //    ]
     
     @State private var userHasPostedToday: Bool = true
+    
+    @Binding var showSignInView: Bool
 
     var body: some View {
             ZStack {
@@ -65,6 +67,19 @@ struct FeedView: View {
 
                         ForEach(viewModel.posts) { post in
                             FeedCardView(post: post, isLocked: !userHasPostedToday)
+                        }
+                        
+                        Spacer().frame(height: 50)
+                        
+                        Button("Log Out") {
+                            Task {
+                                do {
+                                    try viewModel.logOut()
+                                    showSignInView = true
+                                } catch {
+                                    print("Log out failed")
+                                }
+                            }
                         }
                         
                         Spacer().frame(height: 50)
@@ -164,5 +179,5 @@ struct FeedCardView: View {
 }
 
 #Preview {
-    FeedView()
+    FeedView(showSignInView: .constant(false))
 }

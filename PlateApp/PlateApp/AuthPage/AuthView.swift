@@ -9,7 +9,32 @@ import SwiftUI
 
 
 struct AuthView: View {
-    @StateObject private var viewModel = AuthViewModel()
+    @Binding var showFeedView: Bool
+    var body: some View {
+        ZStack {
+            Color.black.ignoresSafeArea()
+            
+            NavigationLink {
+                SignInView(showFeedView: $showFeedView)
+            } label: {
+                VStack {
+                    Text("Sign in with Email")
+                        .fontWeight(.semibold)
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(Color(.primary))
+                        .foregroundColor(.white)
+                        .cornerRadius(10)
+                }
+                .padding()
+            }
+        }
+    }
+}
+
+struct SignInView: View {
+    @StateObject var viewModel = AuthViewModel()
+    @Binding var showFeedView: Bool
     
     var body: some View {
         ZStack {
@@ -17,7 +42,7 @@ struct AuthView: View {
             
             ZStack {
                 VStack(alignment: .center, spacing: 50) {
-                    Text("Log in with Email")
+                    Text("Sign in with Email")
                         .font(.title)
                         .bold()
                     VStack(alignment: .leading, spacing: 5) {
@@ -27,6 +52,7 @@ struct AuthView: View {
                             .keyboardType(.phonePad)
                             .frame(width: 300, height: 50)
                             .background(.white)
+                            .foregroundStyle(.black)
                             .cornerRadius(6)
                             .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color(.white), lineWidth: 1))
                         Text("Password")
@@ -35,12 +61,14 @@ struct AuthView: View {
                             .keyboardType(.phonePad)
                             .frame(width: 300, height: 50)
                             .background(.white)
+                            .foregroundStyle(.black)
                             .cornerRadius(6)
                             .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color(.white), lineWidth: 1))
                     }
                     
                     Button(action: {
                         viewModel.signIn()
+                        showFeedView = false
                     }) {
                         Text("Continue")
                             .fontWeight(.semibold)
@@ -48,7 +76,7 @@ struct AuthView: View {
                             .padding()
                             .background(Color(.primary))
                             .foregroundColor(.white)
-                            .clipShape(.capsule)
+                            .cornerRadius(10)
                     }
                     .padding(.horizontal)
                     .padding(.bottom)
@@ -62,5 +90,5 @@ struct AuthView: View {
 
 
 #Preview {
-    AuthView()
+    AuthView(showFeedView: .constant(true))
 }

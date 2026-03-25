@@ -13,12 +13,28 @@
 		6653F11E2F69BCF300471CAE /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = 6653F11D2F69BCF300471CAE /* FirebaseStorage */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		6653F1A42F73C11D00471CAE /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 66F158E82F61B70800ACA60A /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 66F158EF2F61B70800ACA60A;
+			remoteInfo = PlateApp;
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXFileReference section */
 		6653F1162F69BC5500471CAE /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		6653F19E2F73C11D00471CAE /* PlateAppUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PlateAppUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		66F158F02F61B70800ACA60A /* PlateApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PlateApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
+		6653F19F2F73C11D00471CAE /* PlateAppUITests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = PlateAppUITests;
+			sourceTree = "<group>";
+		};
 		66F158F22F61B70800ACA60A /* PlateApp */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = PlateApp;
@@ -27,6 +43,13 @@
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		6653F19B2F73C11D00471CAE /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		66F158ED2F61B70800ACA60A /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -44,6 +67,7 @@
 			isa = PBXGroup;
 			children = (
 				66F158F22F61B70800ACA60A /* PlateApp */,
+				6653F19F2F73C11D00471CAE /* PlateAppUITests */,
 				66F158F12F61B70800ACA60A /* Products */,
 				6653F1162F69BC5500471CAE /* GoogleService-Info.plist */,
 			);
@@ -53,6 +77,7 @@
 			isa = PBXGroup;
 			children = (
 				66F158F02F61B70800ACA60A /* PlateApp.app */,
+				6653F19E2F73C11D00471CAE /* PlateAppUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -60,6 +85,29 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		6653F19D2F73C11D00471CAE /* PlateAppUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 6653F1A62F73C11D00471CAE /* Build configuration list for PBXNativeTarget "PlateAppUITests" */;
+			buildPhases = (
+				6653F19A2F73C11D00471CAE /* Sources */,
+				6653F19B2F73C11D00471CAE /* Frameworks */,
+				6653F19C2F73C11D00471CAE /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				6653F1A52F73C11D00471CAE /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				6653F19F2F73C11D00471CAE /* PlateAppUITests */,
+			);
+			name = PlateAppUITests;
+			packageProductDependencies = (
+			);
+			productName = PlateAppUITests;
+			productReference = 6653F19E2F73C11D00471CAE /* PlateAppUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
 		66F158EF2F61B70800ACA60A /* PlateApp */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 66F158FE2F61B70A00ACA60A /* Build configuration list for PBXNativeTarget "PlateApp" */;
@@ -95,6 +143,10 @@
 				LastSwiftUpdateCheck = 1620;
 				LastUpgradeCheck = 1620;
 				TargetAttributes = {
+					6653F19D2F73C11D00471CAE = {
+						CreatedOnToolsVersion = 16.2;
+						TestTargetID = 66F158EF2F61B70800ACA60A;
+					};
 					66F158EF2F61B70800ACA60A = {
 						CreatedOnToolsVersion = 16.2;
 					};
@@ -118,11 +170,19 @@
 			projectRoot = "";
 			targets = (
 				66F158EF2F61B70800ACA60A /* PlateApp */,
+				6653F19D2F73C11D00471CAE /* PlateAppUITests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		6653F19C2F73C11D00471CAE /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		66F158EE2F61B70800ACA60A /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -134,6 +194,13 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		6653F19A2F73C11D00471CAE /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		66F158EC2F61B70800ACA60A /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -143,7 +210,49 @@
 		};
 /* End PBXSourcesBuildPhase section */
 
+/* Begin PBXTargetDependency section */
+		6653F1A52F73C11D00471CAE /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 66F158EF2F61B70800ACA60A /* PlateApp */;
+			targetProxy = 6653F1A42F73C11D00471CAE /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
 /* Begin XCBuildConfiguration section */
+		6653F1A72F73C11D00471CAE /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 969QW522BA;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.yasseencreates.PlateAppUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = PlateApp;
+			};
+			name = Debug;
+		};
+		6653F1A82F73C11D00471CAE /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 969QW522BA;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.yasseencreates.PlateAppUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = PlateApp;
+			};
+			name = Release;
+		};
 		66F158FC2F61B70A00ACA60A /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -324,6 +433,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		6653F1A62F73C11D00471CAE /* Build configuration list for PBXNativeTarget "PlateAppUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				6653F1A72F73C11D00471CAE /* Debug */,
+				6653F1A82F73C11D00471CAE /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		66F158EB2F61B70800ACA60A /* Build configuration list for PBXProject "PlateApp" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (

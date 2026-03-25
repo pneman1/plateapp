@@ -9,6 +9,8 @@ import SwiftUI
 import FirebaseFirestore
 import Foundation
 
+
+@MainActor
 class FeedViewModel: ObservableObject{
     @Published var posts: [Post] = []
     
@@ -16,6 +18,10 @@ class FeedViewModel: ObservableObject{
     
     init () {
         fetchPosts()
+    }
+    
+    func logOut() throws {
+        try AuthenticationManager.shared.signOut()
     }
     
     func fetchPosts(){
