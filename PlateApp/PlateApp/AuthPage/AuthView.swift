@@ -25,10 +25,10 @@ struct AuthView: View {
                         .background(Color(.primary))
                         .foregroundColor(.white)
                         .cornerRadius(10)
+                        .accessibilityIdentifier("signInButton")
                 }
                 .padding()
             }
-            .accessibilityIdentifier("signInLink")
         }
     }
 }

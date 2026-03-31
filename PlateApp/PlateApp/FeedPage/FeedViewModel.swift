@@ -47,7 +47,7 @@ class FeedViewModel: ObservableObject{
     func uploadMockPost() {
         let newPost = Post(
             userID: "upload_test",
-            imageURL: "https://i.imgur.com/RpzNeWO.jpeg",
+            imageURL: "",
             caption: "Testing the upload logic!",
             timestamp: Date(),
             location: PlateLocation(

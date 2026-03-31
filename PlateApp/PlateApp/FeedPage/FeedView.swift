@@ -64,6 +64,7 @@ struct FeedView: View {
                         Text("Plate!")
                             .font(.system(size: 28, weight: .black))
                             .foregroundColor(.white)
+                            .accessibilityIdentifier("feed_title_label")
                         
                         Button("TEST: Upload Mock Post") {
                             viewModel.uploadMockPost()
@@ -89,6 +90,7 @@ struct FeedView: View {
                                 }
                             }
                         }
+                        .accessibilityIdentifier("log_out_button")
                         
                         Spacer().frame(height: 50)
                     }
