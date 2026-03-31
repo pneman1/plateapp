@@ -9,27 +9,17 @@ import XCTest
 
 final class PlateAppUITests: XCTestCase {
 
+    let app = XCUIApplication()
+
     override func setUpWithError() throws {
-        // Put setup code here. This method is called before the invocation of each test method in the class.
-
-        // In UI tests it is usually best to stop immediately when a failure occurs.
         continueAfterFailure = false
-
-        // In UI tests it’s important to set the initial state - such as interface orientation - required for your tests before they run. The setUp method is a good place to do this.
+        app.launch() // This starts the app fresh for every test
     }
 
     override func tearDownWithError() throws {
         // Put teardown code here. This method is called after the invocation of each test method in the class.
     }
 
-    @MainActor
-    func testExample() throws {
-        // UI tests must launch the application that they test.
-        let app = XCUIApplication()
-        app.launch()
-
-        // Use XCTAssert and related functions to verify your tests produce the correct results.
-    }
 
     @MainActor
     func testLaunchPerformance() throws {
@@ -46,11 +36,35 @@ final class PlateAppUITests: XCTestCase {
         let app = XCUIApplication()
         app.launch()
         
-        let signInLink = app.links["signInLink"]
-        XCTAssertTrue(signInLink.exists, "The signInLink navigation link should exist")
-        signInLink.tap()
+        let signInButton = app.buttons["signInButton"]
+        XCTAssertTrue(signInButton.exists, "The signInButton button should exist")
+        signInButton.tap()
         
         let signInViewTitle = app.staticTexts["Sign in with Email"]
         XCTAssertTrue(signInViewTitle.waitForExistence(timeout: 5), "The sign in view should be displayed")
+    }
+    
+    func testFeedTitleIsVisible() {
+            // 1. Find the element by the ID we set earlier
+            let title = app.staticTexts["feed_title_label"]
+            
+            // 2. Assert (Check) that it exists on the screen
+            XCTAssertTrue(title.exists, "The 'Plate!' header should be visible on launch.")
+        }
+
+    func testLogOutFlow() {
+        let logOutButton = app.buttons["log_out_button"]
+        
+        while !logOutButton.exists {
+            app.swipeUp()
+        }
+        
+        if logOutButton.isHittable {
+            logOutButton.tap()
+        } else {
+            logOutButton.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+        }
+        
+        XCTAssertTrue(app.buttons["signInButton"].exists)
     }
 }
