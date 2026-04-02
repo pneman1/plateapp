@@ -51,9 +51,9 @@ struct SignInView: View {
             
             VStack {
                 Button(action: {
-                    login()
+                    viewModel.signIn()
                 }) {
-                    Text("Continue")
+                    Text("Login")
                         .fontWeight(.semibold)
                         .frame(maxWidth: .infinity)
                         .padding()
@@ -81,15 +81,6 @@ struct SignInView: View {
                 }
             }
             
-        }
-    }
-    func login() {
-        if viewModel.password.isEmpty || viewModel.email.isEmpty {
-            withAnimation(.default) {
-                self.errorMessage = "Please fill in all fields."
-            }
-        } else {
-            viewModel.signIn()
         }
     }
 }

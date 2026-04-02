@@ -20,6 +20,9 @@ struct SignUpView: View {
                 Text("Email")
                 TextField("example$@gmail.com", text: $viewModel.email)
                     .padding()
+                    .onChange(of: viewModel.email) { _,_ in
+                        viewModel.errorMessage = nil
+                    }
                     .frame(width: 300, height: 50)
                     .textInputAutocapitalization(.never)
                     .autocorrectionDisabled(true)
@@ -29,12 +32,22 @@ struct SignUpView: View {
                 Text("Password")
                 SecureField("Password", text: $viewModel.password)
                     .padding()
+                    .onChange(of: viewModel.password) { _,_ in
+                        withAnimation {
+                            viewModel.errorMessage = nil
+                        }
+                    }
                     .frame(width: 300, height: 50)
                     .cornerRadius(6)
-                    .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color(.white), lineWidth: 1))
+                    .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color(.gray), lineWidth: 1))
                 Text("Confirm Password")
                 SecureField("Confirm Password", text: $confirmedPassword)
                     .padding()
+                    .onChange(of: confirmedPassword) { _,_ in
+                        withAnimation {
+                            viewModel.errorMessage = nil
+                        }
+                    }
                     .frame(width: 300, height: 50)
                     .cornerRadius(6)
                     .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color(.gray), lineWidth: 1))
@@ -50,7 +63,7 @@ struct SignUpView: View {
             Button(action: {
                 viewModel.signUp()
             }) {
-                Text("Continue")
+                Text("Create Account")
                     .fontWeight(.semibold)
                     .frame(maxWidth: .infinity)
                     .padding()

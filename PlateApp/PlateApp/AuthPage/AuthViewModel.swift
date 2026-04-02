@@ -23,7 +23,10 @@ class AuthViewModel: ObservableObject {
     
     func signIn() {
         guard !email.isEmpty, !password.isEmpty else {
-            Task { @MainActor in setError("Please fill in all fields.") }
+            Task { await MainActor.run {
+                setError("Please fill in all fields.")
+            }
+            }
             return
         }
         Task {
@@ -41,7 +44,7 @@ class AuthViewModel: ObservableObject {
             } catch {
                 print(error)
                 await MainActor.run {
-                    setError("Username or password is incorrect.")
+                    setError("Email or password is incorrect.")
                 }
             }
         }
@@ -49,7 +52,9 @@ class AuthViewModel: ObservableObject {
     
     func signUp() {
         guard !email.isEmpty, !password.isEmpty else {
-            Task { @MainActor in setError("Please fill in all fields.") }
+            Task { await MainActor.run {
+                setError("Please fill in all fields.")
+            }}
             return
         }
         Task {
@@ -65,6 +70,8 @@ class AuthViewModel: ObservableObject {
                 await MainActor.run {
                     if error.code == AuthErrorCode.emailAlreadyInUse.rawValue {
                         setError("This email is already registered.")
+                    } else if error.code == AuthErrorCode.invalidEmail.rawValue {
+                        setError("Email is badly formatted.")
                     } else {
                         setError("Could not create account. Please try again.")
                     }
