@@ -24,26 +24,20 @@ struct SignUpView: View {
                     .textInputAutocapitalization(.never)
                     .autocorrectionDisabled(true)
                     .keyboardType(.emailAddress)
-                    .background(.white)
-                    .foregroundStyle(.black)
                     .cornerRadius(6)
-                    .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color(.white), lineWidth: 1))
+                    .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color(.gray), lineWidth: 1))
                 Text("Password")
                 SecureField("Password", text: $viewModel.password)
                     .padding()
                     .frame(width: 300, height: 50)
-                    .background(.white)
-                    .foregroundStyle(.black)
                     .cornerRadius(6)
                     .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color(.white), lineWidth: 1))
                 Text("Confirm Password")
                 SecureField("Confirm Password", text: $confirmedPassword)
                     .padding()
                     .frame(width: 300, height: 50)
-                    .background(.white)
-                    .foregroundStyle(.black)
                     .cornerRadius(6)
-                    .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color(.white), lineWidth: 1))
+                    .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color(.gray), lineWidth: 1))
                 
                 if let error = viewModel.errorMessage {
                     Text(error)
@@ -73,4 +67,5 @@ struct SignUpView: View {
 
 #Preview{
     SignUpView()
+        .environmentObject(AuthViewModel())
 }

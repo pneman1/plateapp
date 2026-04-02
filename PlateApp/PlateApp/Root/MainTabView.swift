@@ -42,3 +42,8 @@ struct MainTabView: View {
         .tint(Color(.primary))
     }
 }
+
+
+#Preview {
+    MainTabView()
+}
