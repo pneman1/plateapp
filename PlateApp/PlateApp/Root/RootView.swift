@@ -12,7 +12,7 @@ struct RootView: View {
     var body: some View {
         Group {
             if authVM.isAuthenticated {
-                FeedView()
+                MainTabView()
                     .environmentObject(authVM)
             }
             else {
