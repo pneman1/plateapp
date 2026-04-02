@@ -8,6 +8,7 @@ import SwiftUI
 
 struct FeedView: View {
     @StateObject private var viewModel = FeedViewModel()
+    @Envir
     
 //    let mockPosts: [Post] = [
 //        Post(

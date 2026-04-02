@@ -10,7 +10,8 @@ import SwiftUI
 
 
 struct SignInView: View {
-    @StateObject var viewModel = AuthViewModel()
+    @EnvironmentObject var viewModel: AuthViewModel
+    @State private var errorMessage: String? = nil
     
     var body: some View {
         VStack(alignment: .center, spacing: 50) {
@@ -19,10 +20,12 @@ struct SignInView: View {
                 .bold()
             VStack(alignment: .leading, spacing: 5) {
                 Text("Email")
-                SecureField("example$@gmail.com", text: $viewModel.email)
+                TextField("example$@gmail.com", text: $viewModel.email)
                     .padding()
-                    .keyboardType(.phonePad)
                     .frame(width: 300, height: 50)
+                    .textInputAutocapitalization(.never)
+                    .autocorrectionDisabled(true)
+                    .keyboardType(.emailAddress)
                     .background(.white)
                     .foregroundStyle(.black)
                     .cornerRadius(6)
@@ -30,17 +33,23 @@ struct SignInView: View {
                 Text("Password")
                 SecureField("Password", text: $viewModel.password)
                     .padding()
-                    .keyboardType(.phonePad)
                     .frame(width: 300, height: 50)
                     .background(.white)
                     .foregroundStyle(.black)
                     .cornerRadius(6)
                     .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color(.white), lineWidth: 1))
+                
+                if let error = errorMessage {
+                    Text(error)
+                        .font(.caption)
+                        .foregroundStyle(.red)
+                        .transition(.opacity)
+                }
             }
             
             VStack {
                 Button(action: {
-                    viewModel.signIn()
+                    login()
                 }) {
                     Text("Continue")
                         .fontWeight(.semibold)
@@ -70,6 +79,15 @@ struct SignInView: View {
                 }
             }
             
+        }
+    }
+    func login() {
+        if viewModel.password.isEmpty || viewModel.email.isEmpty {
+            withAnimation(.default) {
+                self.errorMessage = "Please fill in all fields."
+            }
+        } else {
+            viewModel.signIn()
         }
     }
 }

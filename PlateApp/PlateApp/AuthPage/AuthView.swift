@@ -9,7 +9,6 @@ import SwiftUI
 
 
 struct AuthView: View {
-    @Binding var showFeedView: Bool
     var body: some View {
         ZStack {
             Color.black.ignoresSafeArea()
@@ -28,7 +27,7 @@ struct AuthView: View {
                 }
                 Spacer()
                 NavigationLink {
-                    AccountCreationView(showFeedView: $showFeedView)
+                    SignInView()
                 } label: {
                     VStack(spacing: 50) {
                         Text("Sign in with your Email")

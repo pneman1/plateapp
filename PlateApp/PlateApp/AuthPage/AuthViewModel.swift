@@ -13,6 +13,7 @@ import FirebaseAuth
 class AuthViewModel: ObservableObject {
     @Published var email = ""
     @Published var password = ""
+    @Published var isAuthenticated: Bool = false
     
     func signIn() {
         guard !email.isEmpty, !password.isEmpty else {
@@ -24,6 +25,9 @@ class AuthViewModel: ObservableObject {
                 let returnedUserData = try await AuthenticationManager.shared.signIn(email: email, password: password)
                 print("Success")
                 print(returnedUserData)
+                withAnimation {
+                    self.isAuthenticated = true
+                }
             } catch {
                 print("Error: \(error)")
             }
@@ -40,6 +44,9 @@ class AuthViewModel: ObservableObject {
                 let returnedUserData = try await AuthenticationManager.shared.createUser(email: email, password: password)
                 print("Success")
                 print(returnedUserData)
+                withAnimation {
+                    self.isAuthenticated = true
+                }
             } catch {
                 print("Error: \(error)")
             }

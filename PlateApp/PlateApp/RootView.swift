@@ -7,22 +7,19 @@
 import SwiftUI
 
 struct RootView: View {
-    
-    @State private var showSignInView: Bool = false
+    @StateObject var authVM = AuthViewModel()
     
     var body: some View {
-        ZStack {
-            NavigationStack {
-                FeedView(showSignInView: $showSignInView)
+        Group {
+            if authVM.isAuthenticated {
+                FeedView()
+                    .environmentObject(authVM)
             }
-        }
-        .onAppear {
-            let authUser = try? AuthenticationManager.shared.getAuthenticatedUser()
-            self.showSignInView = authUser == nil
-        }
-        .fullScreenCover(isPresented: $showSignInView) {
-            NavigationStack {
-                AuthView(showFeedView: $showSignInView)
+            else {
+                NavigationStack {
+                    AuthView()
+                }
+                .environmentObject(authVM)
             }
         }
     }
