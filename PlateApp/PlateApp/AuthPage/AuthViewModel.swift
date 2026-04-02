@@ -77,6 +77,10 @@ class AuthViewModel: ObservableObject {
         Task {
             do {
                 try AuthenticationManager.shared.signOut()
+                await MainActor.run {
+                    isAuthenticated = false
+                }
+
             } catch {
                 print("Error: \(error)")
             }
