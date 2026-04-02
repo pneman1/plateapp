@@ -53,5 +53,5 @@ struct AuthView: View {
 
 
 #Preview {
-    AuthView(showFeedView: .constant(true))
+    AuthView()
 }

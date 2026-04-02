@@ -171,5 +171,5 @@ struct FeedCardView: View {
 }
 
 #Preview {
-    FeedView(showSignInView: .constant(false))
+    FeedView()
 }

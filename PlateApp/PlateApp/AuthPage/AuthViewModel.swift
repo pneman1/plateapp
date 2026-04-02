@@ -14,41 +14,61 @@ class AuthViewModel: ObservableObject {
     @Published var email = ""
     @Published var password = ""
     @Published var isAuthenticated: Bool = false
+    @Published var errorMessage: String? = nil
+    
+    @MainActor
+    private func setError(_ message : String) {
+        self.errorMessage = message
+    }
     
     func signIn() {
         guard !email.isEmpty, !password.isEmpty else {
-            print("No Email or Password Found.")
+            Task { @MainActor in setError("Please fill in all fields.") }
             return
         }
         Task {
             do {
-                let returnedUserData = try await AuthenticationManager.shared.signIn(email: email, password: password)
-                print("Success")
-                print(returnedUserData)
-                withAnimation {
-                    self.isAuthenticated = true
+                let _ = try await AuthenticationManager.shared.signIn(
+                                    email: email.trimmingCharacters(in: .whitespacesAndNewlines),
+                                    password: password
+                                )
+                                
+                await MainActor.run {
+                    withAnimation {
+                        self.isAuthenticated = true
+                    }
                 }
             } catch {
-                print("Error: \(error)")
+                print(error)
+                await MainActor.run {
+                    setError("Username or password is incorrect.")
+                }
             }
         }
     }
     
     func signUp() {
         guard !email.isEmpty, !password.isEmpty else {
-            print("No Email or Password Found.")
+            Task { @MainActor in setError("Please fill in all fields.") }
             return
         }
         Task {
             do {
-                let returnedUserData = try await AuthenticationManager.shared.createUser(email: email, password: password)
-                print("Success")
-                print(returnedUserData)
-                withAnimation {
-                    self.isAuthenticated = true
+                let _ = try await AuthenticationManager.shared.createUser(email: email, password: password)
+                await MainActor.run {
+                    withAnimation {
+                        self.isAuthenticated = true
+                    }
                 }
-            } catch {
-                print("Error: \(error)")
+            } catch let error as NSError {
+                print(error)
+                await MainActor.run {
+                    if error.code == AuthErrorCode.emailAlreadyInUse.rawValue {
+                        setError("This email is already registered.")
+                    } else {
+                        setError("Could not create account. Please try again.")
+                    }
+                }
             }
         }
     }
