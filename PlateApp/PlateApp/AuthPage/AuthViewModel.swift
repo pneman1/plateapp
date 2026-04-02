@@ -21,6 +21,22 @@ class AuthViewModel: ObservableObject {
         }
         Task {
             do {
+                let returnedUserData = try await AuthenticationManager.shared.signIn(email: email, password: password)
+                print("Success")
+                print(returnedUserData)
+            } catch {
+                print("Error: \(error)")
+            }
+        }
+    }
+    
+    func signUp() {
+        guard !email.isEmpty, !password.isEmpty else {
+            print("No Email or Password Found.")
+            return
+        }
+        Task {
+            do {
                 let returnedUserData = try await AuthenticationManager.shared.createUser(email: email, password: password)
                 print("Success")
                 print(returnedUserData)
@@ -53,6 +69,11 @@ final class AuthenticationManager {
     
     func createUser(email: String, password: String) async throws -> AuthDataResultModel {
         let authDataResult = try await Auth.auth().createUser(withEmail: email, password: password)
+        return AuthDataResultModel(user: authDataResult.user)
+    }
+    
+    func signIn(email: String, password: String) async throws -> AuthDataResultModel {
+        let authDataResult = try await Auth.auth().signIn(withEmail: email, password: password)
         return AuthDataResultModel(user: authDataResult.user)
     }
     
