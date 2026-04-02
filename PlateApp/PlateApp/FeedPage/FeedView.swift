@@ -64,6 +64,15 @@ struct FeedView: View {
                         Text("Plate!")
                             .font(.system(size: 28, weight: .black))
                             .foregroundColor(.white)
+                            .accessibilityIdentifier("feed_title_label")
+                        
+                        Button("TEST: Upload Mock Post") {
+                            viewModel.uploadMockPost()
+                        }
+                        .padding()
+                        .background(Color.blue)
+                        .foregroundColor(.white)
+                        .cornerRadius(10)
 
                         ForEach(viewModel.posts) { post in
                             FeedCardView(post: post, isLocked: !userHasPostedToday)
@@ -81,6 +90,7 @@ struct FeedView: View {
                                 }
                             }
                         }
+                        .accessibilityIdentifier("log_out_button")
                         
                         Spacer().frame(height: 50)
                     }
@@ -106,7 +116,7 @@ struct FeedCardView: View {
                         .font(.system(size: 14, weight: .bold))
                         .foregroundColor(.white)
                     
-                    Text(post.timestamp)
+                    Text(timeAgo(post.timestamp))
                         .font(.system(size: 12))
                         .foregroundColor(.gray)
                 }
@@ -131,7 +141,7 @@ struct FeedCardView: View {
                 VStack(alignment: .leading, spacing: 4) {
                     HStack(alignment: .bottom) {
                         VStack(alignment: .leading, spacing: 2) {
-                            Text(post.location)
+                            Text(post.location.restaurantName)
                                 .font(.system(size: 20, weight: .semibold))
                             Text("Philadelphia, PA")
                                 .font(.system(size: 14, weight: .medium))
