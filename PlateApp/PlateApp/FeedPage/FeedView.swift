@@ -8,7 +8,7 @@ import SwiftUI
 
 struct FeedView: View {
     @StateObject private var viewModel = FeedViewModel()
-    @Envir
+    @EnvironmentObject var authVM: AuthViewModel
     
 //    let mockPosts: [Post] = [
 //        Post(
@@ -53,8 +53,6 @@ struct FeedView: View {
 //    ]
     
     @State private var userHasPostedToday: Bool = true
-    
-    @Binding var showSignInView: Bool
 
     var body: some View {
             ZStack {
@@ -73,14 +71,7 @@ struct FeedView: View {
                         Spacer().frame(height: 50)
                         
                         Button("Log Out") {
-                            Task {
-                                do {
-                                    try viewModel.logOut()
-                                    showSignInView = true
-                                } catch {
-                                    print("Log out failed")
-                                }
-                            }
+                            authVM.signOut()
                         }
                         
                         Spacer().frame(height: 50)

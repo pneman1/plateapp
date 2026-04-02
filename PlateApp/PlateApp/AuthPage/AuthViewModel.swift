@@ -53,6 +53,16 @@ class AuthViewModel: ObservableObject {
         }
     }
     
+    func signOut() {
+        Task {
+            do {
+                try AuthenticationManager.shared.signOut()
+            } catch {
+                print("Error: \(error)")
+            }
+        }
+    }
+    
 }
 
 struct AuthDataResultModel {
