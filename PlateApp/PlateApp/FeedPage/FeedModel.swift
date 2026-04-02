@@ -28,3 +28,14 @@ struct PlateLocation: Codable {
 //    let latitude: Double
 //    let longitude: Double
 //}
+
+
+extension Post {
+    var dateString: String {
+        timestamp.formatted(date: .abbreviated, time: .omitted)
+    }
+    
+    var locationString: String {
+        "\(location.restaurantName)"
+    }
+}
