@@ -176,12 +176,12 @@ private struct ProfileHistoryCard: View {
             .clipShape(RoundedRectangle(cornerRadius: 18))
 
             VStack(alignment: .leading, spacing: 4) {
-                Text(post.location)
+                Text(post.locationString)
                     .font(.system(size: 15, weight: .bold))
                     .foregroundStyle(.white)
                     .lineLimit(1)
 
-                Text(post.timestamp)
+                Text(post.dateString)
                     .font(.system(size: 12, weight: .medium))
                     .foregroundStyle(.gray)
                     .lineLimit(1)

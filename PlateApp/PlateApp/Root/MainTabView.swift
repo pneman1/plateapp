@@ -25,11 +25,11 @@ struct MainTabView: View {
                 }
                 .tag(1)
             
-           /* ProfileView()
+            ProfileView()
                 .tabItem {
                     Label("Profile", systemImage: "person.fill")
                 }
-                .tag(2)*/
+                .tag(2)
         }
         .onAppear {
             let appearance = UITabBarAppearance()

@@ -93,7 +93,7 @@ final class ProfileViewModel: ObservableObject {
 
     private static func favoriteSpot(from posts: [Post]) -> String {
         let counts = posts.reduce(into: [String: Int]()) { partialResult, post in
-            let key = post.location.trimmingCharacters(in: .whitespacesAndNewlines)
+            let key = post.locationString.trimmingCharacters(in: .whitespacesAndNewlines)
             guard !key.isEmpty else { return }
             partialResult[key, default: 0] += 1
         }
