@@ -13,17 +13,81 @@ import FirebaseAuth
 class AuthViewModel: ObservableObject {
     @Published var email = ""
     @Published var password = ""
+    @Published var isAuthenticated: Bool = false
+    @Published var errorMessage: String? = nil
+    
+    @MainActor
+    private func setError(_ message : String) {
+        self.errorMessage = message
+    }
     
     func signIn() {
         guard !email.isEmpty, !password.isEmpty else {
-            print("No Email or Password Found.")
+            Task { await MainActor.run {
+                setError("Please fill in all fields.")
+            }
+            }
             return
         }
         Task {
             do {
-                let returnedUserData = try await AuthenticationManager.shared.createUser(email: email, password: password)
-                print("Success")
-                print(returnedUserData)
+                let _ = try await AuthenticationManager.shared.signIn(
+                                    email: email.trimmingCharacters(in: .whitespacesAndNewlines),
+                                    password: password
+                                )
+                                
+                await MainActor.run {
+                    withAnimation {
+                        self.isAuthenticated = true
+                    }
+                }
+            } catch {
+                print(error)
+                await MainActor.run {
+                    setError("Email or password is incorrect.")
+                }
+            }
+        }
+    }
+    
+    func signUp() {
+        guard !email.isEmpty, !password.isEmpty else {
+            Task { await MainActor.run {
+                setError("Please fill in all fields.")
+            }}
+            return
+        }
+        Task {
+            do {
+                let _ = try await AuthenticationManager.shared.createUser(email: email, password: password)
+                await MainActor.run {
+                    withAnimation {
+                        self.isAuthenticated = true
+                    }
+                }
+            } catch let error as NSError {
+                print(error)
+                await MainActor.run {
+                    if error.code == AuthErrorCode.emailAlreadyInUse.rawValue {
+                        setError("This email is already registered.")
+                    } else if error.code == AuthErrorCode.invalidEmail.rawValue {
+                        setError("Email is badly formatted.")
+                    } else {
+                        setError("Could not create account. Please try again.")
+                    }
+                }
+            }
+        }
+    }
+    
+    func signOut() {
+        Task {
+            do {
+                try AuthenticationManager.shared.signOut()
+                await MainActor.run {
+                    isAuthenticated = false
+                }
+
             } catch {
                 print("Error: \(error)")
             }
@@ -53,6 +117,11 @@ final class AuthenticationManager {
     
     func createUser(email: String, password: String) async throws -> AuthDataResultModel {
         let authDataResult = try await Auth.auth().createUser(withEmail: email, password: password)
+        return AuthDataResultModel(user: authDataResult.user)
+    }
+    
+    func signIn(email: String, password: String) async throws -> AuthDataResultModel {
+        let authDataResult = try await Auth.auth().signIn(withEmail: email, password: password)
         return AuthDataResultModel(user: authDataResult.user)
     }
     

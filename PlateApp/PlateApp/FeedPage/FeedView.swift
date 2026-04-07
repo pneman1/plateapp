@@ -8,6 +8,7 @@ import SwiftUI
 
 struct FeedView: View {
     @StateObject private var viewModel = FeedViewModel()
+    @EnvironmentObject var authVM: AuthViewModel
     
 //    let mockPosts: [Post] = [
 //        Post(
@@ -52,8 +53,6 @@ struct FeedView: View {
 //    ]
     
     @State private var userHasPostedToday: Bool = true
-    
-    @Binding var showSignInView: Bool
 
     var body: some View {
             ZStack {
@@ -64,6 +63,15 @@ struct FeedView: View {
                         Text("Plate!")
                             .font(.system(size: 28, weight: .black))
                             .foregroundColor(.white)
+                            .accessibilityIdentifier("feed_title_label")
+                        
+                        Button("TEST: Upload Mock Post") {
+                            viewModel.uploadMockPost()
+                        }
+                        .padding()
+                        .background(Color.blue)
+                        .foregroundColor(.white)
+                        .cornerRadius(10)
 
                         ForEach(viewModel.posts) { post in
                             FeedCardView(post: post, isLocked: !userHasPostedToday)
@@ -72,15 +80,9 @@ struct FeedView: View {
                         Spacer().frame(height: 50)
                         
                         Button("Log Out") {
-                            Task {
-                                do {
-                                    try viewModel.logOut()
-                                    showSignInView = true
-                                } catch {
-                                    print("Log out failed")
-                                }
-                            }
+                            authVM.signOut()
                         }
+                        .accessibilityIdentifier("log_out_button")
                         
                         Spacer().frame(height: 50)
                     }
@@ -106,7 +108,7 @@ struct FeedCardView: View {
                         .font(.system(size: 14, weight: .bold))
                         .foregroundColor(.white)
                     
-                    Text(post.timestamp)
+                    Text(timeAgo(post.timestamp))
                         .font(.system(size: 12))
                         .foregroundColor(.gray)
                 }
@@ -125,13 +127,13 @@ struct FeedCardView: View {
                 } placeholder: {
                     Color.gray.opacity(0.2)
                 }
-                .frame(width: UIScreen.main.bounds.width - 40, height: 450)
+                .frame(width: UIScreen.main.bounds.width - 40, height: 350)
                 .clipShape(RoundedRectangle(cornerRadius: 30))
                 
                 VStack(alignment: .leading, spacing: 4) {
                     HStack(alignment: .bottom) {
                         VStack(alignment: .leading, spacing: 2) {
-                            Text(post.location)
+                            Text(post.location.restaurantName)
                                 .font(.system(size: 20, weight: .semibold))
                             Text("Philadelphia, PA")
                                 .font(.system(size: 14, weight: .medium))
@@ -179,5 +181,5 @@ struct FeedCardView: View {
 }
 
 #Preview {
-    FeedView(showSignInView: .constant(false))
+    FeedView()
 }
