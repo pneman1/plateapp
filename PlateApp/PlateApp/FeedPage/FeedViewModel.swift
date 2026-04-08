@@ -19,11 +19,7 @@ class FeedViewModel: ObservableObject{
     init () {
         fetchPosts()
     }
-    
-    func logOut() throws {
-        try AuthenticationManager.shared.signOut()
-    }
-    
+
     func fetchPosts(){
         db.collection("images")
             .addSnapshotListener { (querySnapshot, error) in

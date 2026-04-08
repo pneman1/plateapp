@@ -53,4 +53,21 @@ final class PlateAppUITests: XCTestCase {
         let signInViewTitle = app.staticTexts["Sign in with Email"]
         XCTAssertTrue(signInViewTitle.waitForExistence(timeout: 5), "The sign in view should be displayed")
     }
+
+    @MainActor
+    func testProfilePageShowsLogoutButton() throws {
+        let app = XCUIApplication()
+        app.launch()
+
+        guard !app.links["signInLink"].waitForExistence(timeout: 2) else {
+            throw XCTSkip("Profile screen requires a signed-in app state")
+        }
+
+        let profileLink = app.buttons["profileNavigationLink"]
+        XCTAssertTrue(profileLink.waitForExistence(timeout: 5), "The profile navigation link should exist on the feed")
+        profileLink.tap()
+
+        XCTAssertTrue(app.staticTexts["profileTitle"].waitForExistence(timeout: 5), "The profile screen should be displayed")
+        XCTAssertTrue(app.buttons["profileLogOutButton"].exists, "The profile screen should show a logout button")
+    }
 }

@@ -64,22 +64,24 @@ struct FeedView: View {
                         Text("Plate!")
                             .font(.system(size: 28, weight: .black))
                             .foregroundColor(.white)
+                            .accessibilityIdentifier("feedTitle")
+
+                        NavigationLink {
+                            ProfileView(showSignInView: $showSignInView)
+                        } label: {
+                            Text("Profile")
+                                .fontWeight(.semibold)
+                                .frame(maxWidth: .infinity)
+                                .padding()
+                                .background(Color(.primary))
+                                .foregroundColor(.white)
+                                .cornerRadius(10)
+                        }
+                        .padding(.horizontal)
+                        .accessibilityIdentifier("profileNavigationLink")
 
                         ForEach(viewModel.posts) { post in
                             FeedCardView(post: post, isLocked: !userHasPostedToday)
-                        }
-                        
-                        Spacer().frame(height: 50)
-                        
-                        Button("Log Out") {
-                            Task {
-                                do {
-                                    try viewModel.logOut()
-                                    showSignInView = true
-                                } catch {
-                                    print("Log out failed")
-                                }
-                            }
                         }
                         
                         Spacer().frame(height: 50)
