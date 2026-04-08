@@ -67,4 +67,47 @@ final class PlateAppUITests: XCTestCase {
         
         XCTAssertTrue(app.buttons["signInButton"].exists)
     }
+    
+    func testLocationResolution() {
+        login()
+        
+        let cityLabel = app.staticTexts["post_city_label"].firstMatch
+        
+        XCTAssertTrue(cityLabel.exists, "The city label should be present on the feed card.")
+        
+        let notLoading = NSPredicate(format: "label != 'Loading...'")
+        let expectation = expectation(for: notLoading, evaluatedWith: cityLabel, handler: nil)
+        
+        let result = XCTWaiter().wait(for: [expectation], timeout: 10.0)
+        
+        XCTAssertEqual(result, .completed, "The location should resolve to a real city name within 10 seconds.")
+        
+        XCTAssertNotEqual(cityLabel.label, "Loading...")
+        print("Resolved City: \(cityLabel.label)")
+    }
+    
+    func login() {
+        
+        let signInButton = app.buttons["signInLink"]
+        if signInButton.exists {
+            signInButton.tap()
+        }
+        
+        let emailField = app.textFields["email_tf"]
+        let passwordField = app.secureTextFields["password_tf"]
+        let loginButton = app.buttons["logInButton"]
+
+        if loginButton.exists {
+            emailField.tap()
+            emailField.typeText("test@test.edu")
+            
+            passwordField.tap()
+            passwordField.typeText("password123")
+            
+            loginButton.tap()
+            
+            let feedTitle = app.staticTexts["feed_title_label"]
+            XCTAssertTrue(feedTitle.waitForExistence(timeout: 10), "Login failed or Feed didn't load.")
+        }
+    }
 }
