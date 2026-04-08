@@ -9,17 +9,14 @@ import XCTest
 
 final class PlateAppUITests: XCTestCase {
 
+    let app = XCUIApplication()
+
     override func setUpWithError() throws {
         continueAfterFailure = false
+        app.launch()
     }
 
     override func tearDownWithError() throws {
-    }
-
-    @MainActor
-    func testExample() throws {
-        let app = XCUIApplication()
-        app.launch()
     }
 
     @MainActor
@@ -30,50 +27,101 @@ final class PlateAppUITests: XCTestCase {
             }
         }
     }
-    
+
     @MainActor
     func testSignInButton() throws {
-        let app = XCUIApplication()
-        app.launch()
-        
-        let signInLink = app.links["signInLink"]
-        XCTAssertTrue(signInLink.exists, "The signInLink navigation link should exist")
-        signInLink.tap()
-        
+        let signInButton = app.buttons["signInLink"]
+        XCTAssertTrue(signInButton.exists, "The signInButton button should exist")
+        signInButton.tap()
+
         let signInViewTitle = app.staticTexts["Sign in with Email"]
         XCTAssertTrue(signInViewTitle.waitForExistence(timeout: 5), "The sign in view should be displayed")
     }
 
-    @MainActor
-    func testProfilePageShowsLogoutButton() throws {
-        let app = XCUIApplication()
-        app.launch()
+    func testFeedTitleIsVisible() {
+        login()
 
-        guard !app.links["signInLink"].waitForExistence(timeout: 2) else {
-            throw XCTSkip("Profile screen requires a signed-in app state")
-        }
+        let title = app.staticTexts["feed_title_label"]
 
-        let profileLink = app.buttons["profileNavigationLink"]
-        XCTAssertTrue(profileLink.waitForExistence(timeout: 5), "The profile navigation link should exist on the feed")
-        profileLink.tap()
-
-        XCTAssertTrue(app.staticTexts["profileTitle"].waitForExistence(timeout: 5), "The profile screen should be displayed")
-        XCTAssertTrue(app.buttons["profileLogOutButton"].exists, "The profile screen should show a logout button")
+        XCTAssertTrue(title.exists, "The 'Plate!' header should be visible on launch.")
     }
 
-    @MainActor
-    func testMapPageShowsHeatmap() throws {
-        let app = XCUIApplication()
-        app.launch()
+    func testProfilePageShowsLogoutButton() {
+        login()
 
-        guard !app.links["signInLink"].waitForExistence(timeout: 2) else {
-            throw XCTSkip("Map screen requires a signed-in app state")
+        app.tabBars.buttons["Profile"].tap()
+
+        let logOutButton = app.buttons["profileLogOutButton"]
+        XCTAssertTrue(logOutButton.waitForExistence(timeout: 5), "The profile logout button should exist")
+    }
+
+    func testLogOutFlow() {
+        login()
+
+        app.tabBars.buttons["Profile"].tap()
+
+        let logOutButton = app.buttons["profileLogOutButton"]
+        XCTAssertTrue(logOutButton.waitForExistence(timeout: 5), "The profile logout button should exist")
+
+        if logOutButton.isHittable {
+            logOutButton.tap()
+        } else {
+            logOutButton.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
         }
 
-        let mapLink = app.buttons["mapNavigationLink"]
-        XCTAssertTrue(mapLink.waitForExistence(timeout: 5), "The map navigation link should exist on the feed")
-        mapLink.tap()
+        let signInButton = app.buttons["signInLink"]
 
-        XCTAssertTrue(app.staticTexts["mapTitle"].waitForExistence(timeout: 5), "The map screen should be displayed")
+        XCTAssertTrue(signInButton.waitForExistence(timeout: 5), "After logging out, the sign in button should be visible.")
+    }
+
+    func testMapPageShowsHeatmap() {
+        login()
+
+        app.tabBars.buttons["Map"].tap()
+
+        let mapTitle = app.staticTexts["mapTitle"]
+        XCTAssertTrue(mapTitle.waitForExistence(timeout: 5), "The map screen should be displayed")
+    }
+
+    func testLocationResolution() {
+        login()
+
+        let cityLabel = app.staticTexts["post_city_label"].firstMatch
+
+        XCTAssertTrue(cityLabel.exists, "The city label should be present on the feed card.")
+
+        let notLoading = NSPredicate(format: "label != 'Loading...'")
+        let expectation = expectation(for: notLoading, evaluatedWith: cityLabel, handler: nil)
+
+        let result = XCTWaiter().wait(for: [expectation], timeout: 10.0)
+
+        XCTAssertEqual(result, .completed, "The location should resolve to a real city name within 10 seconds.")
+
+        XCTAssertNotEqual(cityLabel.label, "Loading...")
+        print("Resolved City: \(cityLabel.label)")
+    }
+
+    func login() {
+        let signInButton = app.buttons["signInLink"]
+        if signInButton.exists {
+            signInButton.tap()
+        }
+
+        let emailField = app.textFields["email_tf"]
+        let passwordField = app.secureTextFields["password_tf"]
+        let loginButton = app.buttons["logInButton"]
+
+        if loginButton.exists {
+            emailField.tap()
+            emailField.typeText("test@test.edu")
+
+            passwordField.tap()
+            passwordField.typeText("password123")
+
+            loginButton.tap()
+
+            let feedTitle = app.staticTexts["feed_title_label"]
+            XCTAssertTrue(feedTitle.waitForExistence(timeout: 10), "Login failed or Feed didn't load.")
+        }
     }
 }

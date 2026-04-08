@@ -5,10 +5,14 @@
 //  Created by Yasseen Rouni on 3/11/26.
 //
 import SwiftUI
+import CoreLocation
 
 struct FeedView: View {
     @StateObject private var viewModel = FeedViewModel()
-    
+    @EnvironmentObject var authVM: AuthViewModel
+
+    @State private var showingUpload = false
+
 //    let mockPosts: [Post] = [
 //        Post(
 //            id: "1",
@@ -50,57 +54,51 @@ struct FeedView: View {
 //            isPublic: true
 //        )
 //    ]
-    
+
     @State private var userHasPostedToday: Bool = true
-    
-    @Binding var showSignInView: Bool
 
     var body: some View {
+        NavigationView {
             ZStack {
                 Color.black.ignoresSafeArea()
-                
+
                 ScrollView(showsIndicators: false) {
                     VStack(spacing: 20) {
                         Text("Plate!")
                             .font(.system(size: 28, weight: .black))
                             .foregroundColor(.white)
-                            .accessibilityIdentifier("feedTitle")
+                            .accessibilityIdentifier("feed_title_label")
 
-                        NavigationLink {
-                            MapView()
-                        } label: {
-                            Text("Map")
-                                .fontWeight(.semibold)
-                                .frame(maxWidth: .infinity)
-                                .padding()
-                                .background(Color(.primary))
-                                .foregroundColor(.white)
-                                .cornerRadius(10)
+                        Button("TEST: Upload Mock Post") {
+                            viewModel.uploadMockPost()
                         }
-                        .padding(.horizontal)
-                        .accessibilityIdentifier("mapNavigationLink")
-
-                        NavigationLink {
-                            ProfileView(showSignInView: $showSignInView)
-                        } label: {
-                            Text("Profile")
-                                .fontWeight(.semibold)
-                                .frame(maxWidth: .infinity)
-                                .padding()
-                                .background(Color(.primary))
-                                .foregroundColor(.white)
-                                .cornerRadius(10)
-                        }
-                        .padding(.horizontal)
-                        .accessibilityIdentifier("profileNavigationLink")
+                        .padding()
+                        .background(Color.blue)
+                        .foregroundColor(.white)
+                        .cornerRadius(10)
 
                         ForEach(viewModel.posts) { post in
                             FeedCardView(post: post, isLocked: !userHasPostedToday)
                         }
-                        
+
                         Spacer().frame(height: 50)
                     }
                 }
+            }
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button(action: {
+                        showingUpload = true
+                    }) {
+                        Image(systemName: "plus.circle.fill")
+                            .font(.title2)
+                            .foregroundColor(.white)
+                    }
+                }
+            }
+            .sheet(isPresented: $showingUpload) {
+                UploadView()
+            }
         }
     }
 }
@@ -108,7 +106,9 @@ struct FeedView: View {
 struct FeedCardView: View {
     let post: Post
     let isLocked: Bool
-    
+
+    @State private var cityName: String = "Loading..."
+
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             HStack(spacing: 12) {
@@ -116,23 +116,23 @@ struct FeedCardView: View {
                     .resizable()
                     .frame(width: 35, height: 35)
                     .foregroundColor(.gray)
-                
+
                 VStack(alignment: .leading, spacing: 2) {
                     Text(post.userID)
                         .font(.system(size: 14, weight: .bold))
                         .foregroundColor(.white)
-                    
-                    Text(post.timestamp)
+
+                    Text(timeAgo(post.timestamp))
                         .font(.system(size: 12))
                         .foregroundColor(.gray)
                 }
-                
+
                 Spacer()
-                
+
             }
             .padding(.horizontal, 20)
             .padding(.vertical, 12)
-            
+
             ZStack(alignment: .bottom) {
                 AsyncImage(url: URL(string: post.imageURL)) { image in
                     image
@@ -143,15 +143,16 @@ struct FeedCardView: View {
                 }
                 .frame(width: UIScreen.main.bounds.width - 40, height: 350)
                 .clipShape(RoundedRectangle(cornerRadius: 30))
-                
+
                 VStack(alignment: .leading, spacing: 4) {
                     HStack(alignment: .bottom) {
                         VStack(alignment: .leading, spacing: 2) {
-                            Text(post.location)
+                            Text(post.location.restaurantName)
                                 .font(.system(size: 20, weight: .semibold))
-                            Text("Philadelphia, PA")
+                            Text(cityName)
                                 .font(.system(size: 14, weight: .medium))
                                 .italic()
+                                .accessibilityIdentifier("post_city_label")
                         }
                         Spacer()
                         VStack(alignment: .trailing, spacing: 2) {
@@ -170,7 +171,7 @@ struct FeedCardView: View {
                     LinearGradient(colors: [.black.opacity(0.8), .clear], startPoint: .bottom, endPoint: .top)
                         .cornerRadius(30)
                 )
-                
+
                 if isLocked {
                     Rectangle()
                         .fill(.ultraThinMaterial)
@@ -184,9 +185,21 @@ struct FeedCardView: View {
                         .clipShape(RoundedRectangle(cornerRadius: 30))
                 }
             }
+            .onAppear {
+                let coordinate = CLLocationCoordinate2D(
+                    latitude: post.location.geopoint.latitude,
+                    longitude: post.location.geopoint.longitude
+                )
+
+                LocationHelper.shared.getCityName(from: coordinate) { locationString in
+                    DispatchQueue.main.async {
+                        self.cityName = locationString
+                    }
+                }
+            }
         }
     }
-    
+
     func timeAgo(_ date: Date) -> String {
         let formatter = RelativeDateTimeFormatter()
         formatter.unitsStyle = .full
@@ -195,5 +208,5 @@ struct FeedCardView: View {
 }
 
 #Preview {
-    FeedView(showSignInView: .constant(false))
+    FeedView()
 }

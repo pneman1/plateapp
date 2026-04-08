@@ -10,16 +10,16 @@ import SwiftUI
 
 struct MapView: View {
     @StateObject private var viewModel = MapViewModel()
-    @State private var cameraPosition: MapCameraPosition = .region(
+    @State private var position: MapCameraPosition = .region(
         MKCoordinateRegion(
             center: CLLocationCoordinate2D(latitude: 39.9526, longitude: -75.1652),
-            span: MKCoordinateSpan(latitudeDelta: 0.12, longitudeDelta: 0.12)
+            span: MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05)
         )
     )
 
     var body: some View {
         ZStack(alignment: .top) {
-            Map(position: $cameraPosition) {
+            Map(position: $position) {
                 ForEach(viewModel.hotspots) { hotspot in
                     Annotation("", coordinate: hotspot.coordinate) {
                         Circle()
@@ -37,7 +37,7 @@ struct MapView: View {
                     }
                 }
             }
-            .ignoresSafeArea()
+            .edgesIgnoringSafeArea(.all)
 
             Text("Food Heatmap")
                 .font(.system(size: 28, weight: .black))
