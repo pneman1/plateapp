@@ -67,6 +67,20 @@ struct FeedView: View {
                             .accessibilityIdentifier("feedTitle")
 
                         NavigationLink {
+                            MapView()
+                        } label: {
+                            Text("Map")
+                                .fontWeight(.semibold)
+                                .frame(maxWidth: .infinity)
+                                .padding()
+                                .background(Color(.primary))
+                                .foregroundColor(.white)
+                                .cornerRadius(10)
+                        }
+                        .padding(.horizontal)
+                        .accessibilityIdentifier("mapNavigationLink")
+
+                        NavigationLink {
                             ProfileView(showSignInView: $showSignInView)
                         } label: {
                             Text("Profile")
