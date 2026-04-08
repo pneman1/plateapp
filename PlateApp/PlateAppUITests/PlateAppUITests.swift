@@ -36,7 +36,7 @@ final class PlateAppUITests: XCTestCase {
         let app = XCUIApplication()
         app.launch()
         
-        let signInButton = app.buttons["signInButton"]
+        let signInButton = app.buttons["signInLink"]
         XCTAssertTrue(signInButton.exists, "The signInButton button should exist")
         signInButton.tap()
         
@@ -45,14 +45,16 @@ final class PlateAppUITests: XCTestCase {
     }
     
     func testFeedTitleIsVisible() {
-            // 1. Find the element by the ID we set earlier
-            let title = app.staticTexts["feed_title_label"]
-            
-            // 2. Assert (Check) that it exists on the screen
-            XCTAssertTrue(title.exists, "The 'Plate!' header should be visible on launch.")
+        login()
+        
+        let title = app.staticTexts["feed_title_label"]
+        
+        XCTAssertTrue(title.exists, "The 'Plate!' header should be visible on launch.")
         }
 
     func testLogOutFlow() {
+        login()
+        
         let logOutButton = app.buttons["log_out_button"]
         
         while !logOutButton.exists {
@@ -65,6 +67,51 @@ final class PlateAppUITests: XCTestCase {
             logOutButton.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
         }
         
-        XCTAssertTrue(app.buttons["signInButton"].exists)
+        let signInButton = app.buttons["signInLink"]
+        
+        XCTAssertTrue(signInButton.exists, "After logging out, the sign in button should be visible.")
+    }
+    
+    func testLocationResolution() {
+        login()
+        
+        let cityLabel = app.staticTexts["post_city_label"].firstMatch
+        
+        XCTAssertTrue(cityLabel.exists, "The city label should be present on the feed card.")
+        
+        let notLoading = NSPredicate(format: "label != 'Loading...'")
+        let expectation = expectation(for: notLoading, evaluatedWith: cityLabel, handler: nil)
+        
+        let result = XCTWaiter().wait(for: [expectation], timeout: 10.0)
+        
+        XCTAssertEqual(result, .completed, "The location should resolve to a real city name within 10 seconds.")
+        
+        XCTAssertNotEqual(cityLabel.label, "Loading...")
+        print("Resolved City: \(cityLabel.label)")
+    }
+    
+    func login() {
+        
+        let signInButton = app.buttons["signInLink"]
+        if signInButton.exists {
+            signInButton.tap()
+        }
+        
+        let emailField = app.textFields["email_tf"]
+        let passwordField = app.secureTextFields["password_tf"]
+        let loginButton = app.buttons["logInButton"]
+
+        if loginButton.exists {
+            emailField.tap()
+            emailField.typeText("test@test.edu")
+            
+            passwordField.tap()
+            passwordField.typeText("password123")
+            
+            loginButton.tap()
+            
+            let feedTitle = app.staticTexts["feed_title_label"]
+            XCTAssertTrue(feedTitle.waitForExistence(timeout: 10), "Login failed or Feed didn't load.")
+        }
     }
 }

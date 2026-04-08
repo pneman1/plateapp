@@ -31,6 +31,7 @@ struct SignInView: View {
                     .keyboardType(.emailAddress)
                     .cornerRadius(6)
                     .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color(.gray), lineWidth: 1))
+                    .accessibilityIdentifier( "email_tf")
                 Text("Password")
                 SecureField("Password", text: $viewModel.password)
                     .onChange(of: viewModel.password) { _,_ in
@@ -40,6 +41,7 @@ struct SignInView: View {
                     .frame(width: 300, height: 50)
                     .cornerRadius(6)
                     .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color(.gray), lineWidth: 1))
+                    .accessibilityIdentifier("password_tf")
                 
                 if let error = viewModel.errorMessage {
                     Text(error)
@@ -63,6 +65,7 @@ struct SignInView: View {
                 }
                 .padding(.horizontal)
                 .padding(.bottom)
+                .accessibilityIdentifier("logInButton")
                 
                 Text("Forgot password?")
                     .foregroundStyle(Color(.primary))
