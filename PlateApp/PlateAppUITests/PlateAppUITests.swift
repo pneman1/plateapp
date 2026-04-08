@@ -36,7 +36,7 @@ final class PlateAppUITests: XCTestCase {
         let app = XCUIApplication()
         app.launch()
         
-        let signInButton = app.buttons["signInButton"]
+        let signInButton = app.buttons["signInLink"]
         XCTAssertTrue(signInButton.exists, "The signInButton button should exist")
         signInButton.tap()
         
@@ -45,14 +45,16 @@ final class PlateAppUITests: XCTestCase {
     }
     
     func testFeedTitleIsVisible() {
-            // 1. Find the element by the ID we set earlier
-            let title = app.staticTexts["feed_title_label"]
-            
-            // 2. Assert (Check) that it exists on the screen
-            XCTAssertTrue(title.exists, "The 'Plate!' header should be visible on launch.")
+        login()
+        
+        let title = app.staticTexts["feed_title_label"]
+        
+        XCTAssertTrue(title.exists, "The 'Plate!' header should be visible on launch.")
         }
 
     func testLogOutFlow() {
+        login()
+        
         let logOutButton = app.buttons["log_out_button"]
         
         while !logOutButton.exists {
@@ -65,7 +67,9 @@ final class PlateAppUITests: XCTestCase {
             logOutButton.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
         }
         
-        XCTAssertTrue(app.buttons["signInButton"].exists)
+        let signInButton = app.buttons["signInLink"]
+        
+        XCTAssertTrue(signInButton.exists, "After logging out, the sign in button should be visible.")
     }
     
     func testLocationResolution() {
