@@ -48,12 +48,12 @@ class FeedViewModel: ObservableObject{
         let newPost = Post(
             userID: "upload_test",
             imageURL: "https://i.imgur.com/RpzNeWO.jpeg",
-            caption: "Testing the upload logic!",
+            caption: "Hello from Washington!",
             timestamp: Date(),
             location: PlateLocation(
-                geopoint: GeoPoint(latitude: 39.98, longitude: -75.15), // Temple University coords
+                geopoint: GeoPoint(latitude: 38.90364464314628, longitude: -77.03904851767572),
                 geohash: "dr4e",
-                restaurantName: "Champ's"
+                restaurantName: "Restaurant in Washington, D.C."
             ),
             isPublic: true
         )

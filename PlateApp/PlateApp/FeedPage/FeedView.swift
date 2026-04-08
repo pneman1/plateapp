@@ -5,10 +5,13 @@
 //  Created by Yasseen Rouni on 3/11/26.
 //
 import SwiftUI
+import CoreLocation
 
 struct FeedView: View {
     @StateObject private var viewModel = FeedViewModel()
     @EnvironmentObject var authVM: AuthViewModel
+    
+    @State private var showingUpload = false
     
 //    let mockPosts: [Post] = [
 //        Post(
@@ -55,6 +58,7 @@ struct FeedView: View {
     @State private var userHasPostedToday: Bool = true
 
     var body: some View {
+        NavigationView {
             ZStack {
                 Color.black.ignoresSafeArea()
                 
@@ -72,7 +76,7 @@ struct FeedView: View {
                         .background(Color.blue)
                         .foregroundColor(.white)
                         .cornerRadius(10)
-
+                        
                         ForEach(viewModel.posts) { post in
                             FeedCardView(post: post, isLocked: !userHasPostedToday)
                         }
@@ -87,6 +91,21 @@ struct FeedView: View {
                         Spacer().frame(height: 50)
                     }
                 }
+            }
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button(action: {
+                        showingUpload = true // Flip the switch!
+                    }) {
+                        Image(systemName: "plus.circle.fill")
+                            .font(.title2)
+                            .foregroundColor(.white)
+                    }
+                }
+            }
+            .sheet(isPresented: $showingUpload) {
+                UploadView()
+            }
         }
     }
 }
@@ -94,6 +113,8 @@ struct FeedView: View {
 struct FeedCardView: View {
     let post: Post
     let isLocked: Bool
+    
+    @State private var cityName: String = "Loading..."
     
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -135,9 +156,10 @@ struct FeedCardView: View {
                         VStack(alignment: .leading, spacing: 2) {
                             Text(post.location.restaurantName)
                                 .font(.system(size: 20, weight: .semibold))
-                            Text("Philadelphia, PA")
+                            Text(cityName)
                                 .font(.system(size: 14, weight: .medium))
                                 .italic()
+                                .accessibilityIdentifier("post_city_label")
                         }
                         Spacer()
                         VStack(alignment: .trailing, spacing: 2) {
@@ -169,6 +191,18 @@ struct FeedCardView: View {
                         )
                         .clipShape(RoundedRectangle(cornerRadius: 30))
                 }
+            }
+            .onAppear{
+                let coordinate = CLLocationCoordinate2D(
+                        latitude: post.location.geopoint.latitude,
+                        longitude: post.location.geopoint.longitude
+                    )
+                    
+                    LocationHelper.shared.getCityName(from: coordinate) { locationString in
+                        DispatchQueue.main.async {
+                            self.cityName = locationString
+                        }
+                    }
             }
         }
     }
