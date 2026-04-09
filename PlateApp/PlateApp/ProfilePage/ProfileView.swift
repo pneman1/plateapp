@@ -9,6 +9,7 @@ import SwiftUI
 
 struct ProfileView: View {
     @StateObject private var viewModel = ProfileViewModel()
+    @EnvironmentObject var authVM: AuthViewModel
 
     private let gridItems = [
         GridItem(.flexible(), spacing: 12),
@@ -30,6 +31,17 @@ struct ProfileView: View {
                             .tint(.white)
                             .frame(maxWidth: .infinity, alignment: .center)
                     }
+
+                    Button("Log Out") {
+                        authVM.signOut()
+                    }
+                    .fontWeight(.semibold)
+                    .frame(maxWidth: .infinity)
+                    .padding()
+                    .background(Color(.primary))
+                    .foregroundColor(.white)
+                    .cornerRadius(10)
+                    .accessibilityIdentifier("profileLogOutButton")
 
                     historySection
                 }
@@ -201,5 +213,6 @@ private struct ProfileHistoryCard: View {
 #Preview {
     NavigationStack {
         ProfileView()
+            .environmentObject(AuthViewModel())
     }
 }
