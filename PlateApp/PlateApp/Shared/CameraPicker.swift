@@ -12,15 +12,31 @@ struct CameraPicker: UIViewControllerRepresentable {
     @Binding var image: UIImage?
     @Environment(\.presentationMode) var presentationMode
 
+//    func makeUIViewController(context: Context) -> UIImagePickerController {
+//        let picker = UIImagePickerController()
+//        picker.delegate = context.coordinator
+//        // Check if the camera is actually available (Simulators don't have cameras!)
+//        if UIImagePickerController.isSourceTypeAvailable(.camera) {
+//            picker.sourceType = .camera
+//        } else {
+//            picker.sourceType = .photoLibrary
+//        }
+//        return picker
+//    }
+    
     func makeUIViewController(context: Context) -> UIImagePickerController {
         let picker = UIImagePickerController()
         picker.delegate = context.coordinator
-        // Check if the camera is actually available (Simulators don't have cameras!)
+        
+        // THE FIX: Check if the camera is actually usable
         if UIImagePickerController.isSourceTypeAvailable(.camera) {
             picker.sourceType = .camera
         } else {
+            // Fallback to library so you can actually get an image in the Simulator
             picker.sourceType = .photoLibrary
+            print("📸 No camera detected. Falling back to Photo Library.")
         }
+        
         return picker
     }
 

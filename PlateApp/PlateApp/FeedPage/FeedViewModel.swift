@@ -63,4 +63,21 @@ class FeedViewModel: ObservableObject{
             print("❌ Error uploading post: \(error.localizedDescription)")
         }
     }
+    
+    func deletePost(postID: String?) {
+        guard let id = postID else {
+            print("Error: Post ID is nil, cannot delete.")
+            return
+        }
+        
+        let db = Firestore.firestore()
+        
+        db.collection("images").document(id).delete { error in
+            if let error = error {
+                print("Error removing document: \(error.localizedDescription)")
+            } else {
+                print("Document successfully removed!")
+            }
+        }
+    }
 }
