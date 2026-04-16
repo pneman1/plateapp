@@ -380,7 +380,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"PlateApp/Preview Content\"";
-				DEVELOPMENT_TEAM = QJ3SZT6QN2;
+				DEVELOPMENT_TEAM = 969QW522BA;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSCameraUsageDescription = "Plate needs camera access to share pictures of your food!";
@@ -410,7 +410,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"PlateApp/Preview Content\"";
-				DEVELOPMENT_TEAM = QJ3SZT6QN2;
+				DEVELOPMENT_TEAM = 969QW522BA;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSCameraUsageDescription = "Plate needs camera access to share pictures of your food!";
