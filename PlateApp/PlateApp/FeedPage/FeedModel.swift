@@ -15,12 +15,13 @@ struct Post: Identifiable, Codable {
     let caption: String
     let timestamp: Date
     let location: PlateLocation
+    let rating: Int
+    let mealType: String
     let isPublic: Bool
 }
 
 struct PlateLocation: Codable {
     let geopoint: GeoPoint
-    let geohash: String
     let restaurantName: String
 }
 

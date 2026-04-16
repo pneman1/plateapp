@@ -12,13 +12,19 @@ import CoreLocation
 import Foundation
 
 struct UploadView: View {
+    @State private var currentLocation: CLLocation?
     @State private var showCamera = false
     @State private var capturedImage: UIImage?
     @State private var caption: String = ""
     @State private var restaurantName: String = ""
     @State private var isUploading = false
     
-    @Environment(\.dismiss) var dismiss // To close the sheet after posting
+    @State private var rating: Int = 5
+    @State private var mealType: String = "Lunch"
+
+    let mealOptions = ["Breakfast", "Lunch", "Dinner", "Snack"]
+    
+    @Environment(\.dismiss) var dismiss
 
     var body: some View {
         NavigationView {
@@ -45,6 +51,29 @@ struct UploadView: View {
                 TextField("Restaurant Name", text: $restaurantName)
                     .textFieldStyle(.roundedBorder)
                     .padding(.horizontal)
+                HStack {
+                    Text("Rating:")
+                        .font(.headline)
+                    Spacer()
+                    HStack(spacing: 8) {
+                        ForEach(1...5, id: \.self) { index in
+                            Image(systemName: index <= rating ? "star.fill" : "star")
+                                .foregroundColor(index <= rating ? .yellow : .gray)
+                                .onTapGesture {
+                                    rating = index
+                                }
+                        }
+                    }
+                }
+                .padding(.horizontal)
+
+                Picker("Meal Type", selection: $mealType) {
+                    ForEach(mealOptions, id: \.self) { option in
+                        Text(option).tag(option)
+                    }
+                }
+                .pickerStyle(.segmented)
+                .padding(.horizontal)
 
                 TextField("Write a caption...", text: $caption)
                     .textFieldStyle(.roundedBorder)
@@ -68,36 +97,55 @@ struct UploadView: View {
                 CameraPicker(image: $capturedImage)
             }
         }
+        .onAppear {
+                LocationHelper.shared.requestLocation { location in
+                    self.currentLocation = location
+                }
+            }
     }
     
     func createPost() {
+        guard let image = capturedImage else { return }
         isUploading = true
         
-        // In a real app, we'd upload the UIImage to Firebase Storage first
-        // and get back a URL. For this step, we use a placeholder:
-        let mockImageURL = "https://i.imgur.com/RpzNeWO.jpeg"
+        // Step A: Upload to Storage first
+        StorageManager.shared.uploadPostImage(image: image) { result in
+            switch result {
+            case .success(let url):
+                // Step B: Once we have the real URL, save to Firestore
+                saveToFirestore(imageURL: url.absoluteString)
+            case .failure(let error):
+                print("Error uploading image: \(error.localizedDescription)")
+                isUploading = false
+            }
+        }
+    }
+
+    private func saveToFirestore(imageURL: String) {
+        let lat = currentLocation?.coordinate.latitude ?? 39.98
+        let lon = currentLocation?.coordinate.longitude ?? -75.15
         
+        let db = Firestore.firestore()
         let newPost = Post(
-            userID: "ryan_dev_test", // Use your authVM.currentUser.id here later
-            imageURL: mockImageURL,
+            userID: "dev_test", // Future: replace with authVM.currentUser.uid
+            imageURL: imageURL,
             caption: caption,
             timestamp: Date(),
             location: PlateLocation(
-                geopoint: GeoPoint(latitude: 39.98, longitude: -75.15), // Temple University
-                geohash: "dr4e",
+                geopoint: GeoPoint(latitude: lat, longitude: lon),
                 restaurantName: restaurantName
             ),
+            rating: rating,
+            mealType: mealType,
             isPublic: true
         )
         
-        // Send to Firestore
-        let db = Firestore.firestore()
         do {
             try db.collection("images").addDocument(from: newPost)
             isUploading = false
-            dismiss() // Close the upload screen
+            dismiss()
         } catch {
-            print("Error uploading: \(error)")
+            print("Firestore Error: \(error)")
             isUploading = false
         }
     }

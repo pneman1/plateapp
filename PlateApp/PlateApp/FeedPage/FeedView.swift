@@ -94,7 +94,7 @@ struct FeedCardView: View {
                 Spacer()
                 
                 Button(action: {
-                    print("Delete tapped for post: \(post.id)")  // Add this to confirm it's firing
+                    print("Delete tapped for post: \(post.id)")
                     viewModel.deletePost(postID: post.id)
                 }) {
                     Image(systemName: "trash")
@@ -135,11 +135,11 @@ struct FeedCardView: View {
                         Spacer()
                         VStack(alignment: .trailing, spacing: 2) {
                             HStack(spacing: 4) {
-                                Text("5")
+                                Text("\(post.rating)")
                                 Image(systemName: "star.fill")
                             }
                             .font(.system(size: 16, weight: .bold))
-                            Text("Dinner").font(.system(size: 14)).italic()
+                            Text(post.mealType).font(.system(size: 14)).italic()
                         }
                     }
                 }
