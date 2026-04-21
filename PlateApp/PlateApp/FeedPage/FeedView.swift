@@ -6,54 +6,13 @@
 //
 import SwiftUI
 import CoreLocation
+import FirebaseFirestore
 
 struct FeedView: View {
     @StateObject private var viewModel = FeedViewModel()
     @EnvironmentObject var authVM: AuthViewModel
 
     @State private var showingUpload = false
-
-//    let mockPosts: [Post] = [
-//        Post(
-//            id: "1",
-//            authorID: "rwind13",
-//            imageURL: "https://i.imgur.com/RpzNeWO.jpeg",
-//            caption: "Best banana bread in Philly!",
-//            timestamp: Date().addingTimeInterval(-1800),
-//            location: PlateLocation(
-//                geopoint: GeoPoint(latitude: 39.95, longitude: -75.16),
-//                geohash: "dr4e",
-//                restaurantName: "Home Cooked"
-//            ),
-//            isPublic: true
-//        ),
-//        Post(
-//            id: "2",
-//            authorID: "yasseen_eats",
-//            imageURL: "https://i.imgur.com/d3XMjOK.jpeg",
-//            caption: "Yummy burger",
-//            timestamp: Date().addingTimeInterval(-3600),
-//            location: PlateLocation(
-//                geopoint: GeoPoint(latitude: 39.95, longitude: -75.16),
-//                geohash: "dr4e",
-//                restaurantName: "Burger World"
-//            ),
-//            isPublic: true
-//        ),
-//        Post(
-//            id: "3",
-//            authorID: "pranav_bites",
-//            imageURL: "https://i.imgur.com/YonPoxk.jpeg",
-//            caption: "Look at my food",
-//            timestamp: Date().addingTimeInterval(-10000),
-//            location: PlateLocation(
-//                geopoint: GeoPoint(latitude: 39.95, longitude: -75.16),
-//                geohash: "dr4e",
-//                restaurantName: "The Halal Shack"
-//            ),
-//            isPublic: true
-//        )
-//    ]
 
     @State private var userHasPostedToday: Bool = true
 
@@ -78,7 +37,9 @@ struct FeedView: View {
                         .cornerRadius(10)
 
                         ForEach(viewModel.posts) { post in
-                            FeedCardView(post: post, isLocked: !userHasPostedToday)
+                            FeedCardView(post: post,
+                                         isLocked: !userHasPostedToday,
+                                         viewModel: viewModel)
                         }
 
                         Spacer().frame(height: 50)
@@ -106,6 +67,9 @@ struct FeedView: View {
 struct FeedCardView: View {
     let post: Post
     let isLocked: Bool
+    
+    let viewModel: FeedViewModel
+    
 
     @State private var cityName: String = "Loading..."
 
@@ -128,6 +92,20 @@ struct FeedCardView: View {
                 }
 
                 Spacer()
+                
+                Button(action: {
+                    print("Delete tapped for post: \(post.id)")  // Add this to confirm it's firing
+                    viewModel.deletePost(postID: post.id)
+                }) {
+                    Image(systemName: "trash")
+                        .foregroundColor(.red)
+                        .padding(12)           // Even bigger hit area
+                        .background(Color.white.opacity(0.2))
+                        .clipShape(Circle())
+                }
+                .buttonStyle(PlainButtonStyle())
+                .contentShape(Circle())        // Explicitly define tappable area
+                .zIndex(100)                   // Much higher to ensure it's on top
 
             }
             .padding(.horizontal, 20)
@@ -182,9 +160,11 @@ struct FeedCardView: View {
                             }
                             .foregroundColor(.white)
                         )
+                        .allowsHitTesting(false)
                         .clipShape(RoundedRectangle(cornerRadius: 30))
                 }
             }
+            .allowsHitTesting(false)
             .onAppear {
                 let coordinate = CLLocationCoordinate2D(
                     latitude: post.location.geopoint.latitude,
@@ -199,6 +179,7 @@ struct FeedCardView: View {
             }
         }
     }
+    
 
     func timeAgo(_ date: Date) -> String {
         let formatter = RelativeDateTimeFormatter()
