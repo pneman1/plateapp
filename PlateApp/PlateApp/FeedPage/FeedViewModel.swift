@@ -22,6 +22,7 @@ class FeedViewModel: ObservableObject{
 
     func fetchPosts(){
         db.collection("images")
+            .order(by: "timestamp", descending: true)
             .addSnapshotListener { (querySnapshot, error) in
                 
                 self.posts = querySnapshot?.documents.compactMap { doc in
@@ -48,9 +49,10 @@ class FeedViewModel: ObservableObject{
             timestamp: Date(),
             location: PlateLocation(
                 geopoint: GeoPoint(latitude: 47.71466349381602, longitude: -122.36316745682254),
-                geohash: "dr4e",
                 restaurantName: "SEATTLE"
             ),
+            rating: 5,
+            mealType: "Lunch",
             isPublic: true
         )
         
