@@ -44,6 +44,8 @@ struct ProfileView: View {
                     .accessibilityIdentifier("profileLogOutButton")
 
                     historySection
+                    
+                    RecommendFriendsView(currentUserID: "rwind13")
                 }
                 .padding(.horizontal, 20)
                 .padding(.vertical, 24)

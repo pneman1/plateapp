@@ -6,6 +6,8 @@
 //
 
 import Foundation
+import Firebase
+import FirebaseFirestore
 
 struct ProfileSummary {
     let displayName: String
@@ -15,4 +17,11 @@ struct ProfileSummary {
     let publicPosts: Int
     let privatePosts: Int
     let favoriteSpot: String
+}
+
+struct UserProfile: Codable, Identifiable {
+    @DocumentID var id: String?
+    var username: String
+    var profileImageURL: String
+    var email: String
 }
