@@ -73,16 +73,22 @@ class RecommendationViewModel: ObservableObject {
             
             if senderIDs.isEmpty {
                         self.incomingRequests = []
+                        print("empty sender ids")
                         return
                     }
             
+            print(senderIDs)
             let usersSnapshot = try await db.collection("users")
                         .whereField(FieldPath.documentID(), in: senderIDs)
                         .getDocuments()
             
+            print(usersSnapshot)
+            
             let profiles = usersSnapshot.documents.compactMap { document -> UserProfile? in
                         try? document.data(as: UserProfile.self)
                     }
+            
+            print(profiles)
             
             self.incomingRequests = profiles
     

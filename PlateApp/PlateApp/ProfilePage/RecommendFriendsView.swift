@@ -19,62 +19,6 @@ struct RecommendFriendsView: View {
                 .foregroundColor(.gray)
                 .padding(.horizontal)
             
-            ForEach(viewModel.incomingRequests) { user in
-                HStack {
-                    // Profile Image
-                    AsyncImage(url: URL(string: user.profileImageURL)) { image in
-                        image.resizable()
-                    } placeholder: {
-                        Circle().fill(Color.gray.opacity(0.3))
-                    }
-                    .frame(width: 45, height: 45)
-                    .clipShape(Circle())
-                    
-                    VStack(alignment: .leading) {
-                        Text(user.username)
-                            .fontWeight(.semibold)
-                        Text("wants to be your friend")
-                            .font(.caption)
-                            .foregroundColor(.gray)
-                    }
-                    
-                    Spacer()
-                    
-                    Button(action: {
-                        // add logic to accept request
-                    }) {
-                        Text("ADD")
-                            .font(.system(size: 14, weight: .bold))
-                            .foregroundColor(.white)
-                            .padding(.horizontal, 16)
-                            .padding(.vertical, 8)
-                            .background(Color.blue)
-                            .cornerRadius(20)
-                    }
-                }
-                .padding(.horizontal)
-                .padding(.vertical, 4)
-            }
-        }
-        .task {
-            await viewModel.fetchRecommendations(currentUserID: currentUserID)
-        }
-    }
-}
-
-
-struct IncomingRequestsView: View {
-    @StateObject var viewModel = RecommendationViewModel()
-    let currentUserID: String // Pass this in from your Auth state
-    
-    var body: some View {
-        VStack(alignment: .leading) {
-            Text("INCOMING REQUESTS")
-                .font(.caption)
-                .fontWeight(.bold)
-                .foregroundColor(.gray)
-                .padding(.horizontal)
-            
             ForEach(viewModel.suggestedUsers) { user in
                 HStack {
                     // Profile Image
@@ -97,7 +41,7 @@ struct IncomingRequestsView: View {
                     Spacer()
                     
                     Button(action: {
-                        viewModel.fetchRequests(currentUserID: currentUserID)
+                        viewModel.sendRequest(from: currentUserID, to: user)
                     }) {
                         Text("ADD")
                             .font(.system(size: 14, weight: .bold))
@@ -114,6 +58,78 @@ struct IncomingRequestsView: View {
         }
         .task {
             await viewModel.fetchRecommendations(currentUserID: currentUserID)
+            await viewModel.fetchRequests(currentUserID: currentUserID)
+        }
+    }
+}
+
+
+struct IncomingRequestsView: View {
+    @StateObject var viewModel = RecommendationViewModel()
+    let currentUserID: String // Pass this in from your Auth state
+    
+    var body: some View {
+        VStack(alignment: .leading) {
+            Text("INCOMING REQUESTS")
+                .font(.caption)
+                .fontWeight(.bold)
+                .foregroundColor(.gray)
+                .padding(.horizontal)
+            
+            if viewModel.incomingRequests.isEmpty {
+                            Text("No pending requests")
+                                .font(.subheadline)
+                                .foregroundColor(.secondary)
+                                .padding(.horizontal)
+            } else {
+                ForEach(viewModel.incomingRequests) { user in
+                    HStack {
+                        // Profile Image
+                        AsyncImage(url: URL(string: user.profileImageURL)) { image in
+                            image.resizable()
+                        } placeholder: {
+                            Circle().fill(Color.gray.opacity(0.3))
+                        }
+                        .frame(width: 45, height: 45)
+                        .clipShape(Circle())
+                        
+                        VStack(alignment: .leading) {
+                            Text(user.username)
+                                .fontWeight(.semibold)
+                            Text("wants to be your friend")
+                                .font(.caption)
+                                .foregroundColor(.gray)
+                        }
+                        
+                        Spacer()
+                        
+                        
+                        HStack {
+                            Button(action: {
+                                // Add logic to accept request
+                            }) {
+                                Text("ACCEPT")
+                                    .font(.system(size: 12, weight: .bold))
+                                    .foregroundColor(.white)
+                                    .padding(.horizontal, 12)
+                                    .padding(.vertical, 8)
+                                    .background(Color.blue)
+                                    .cornerRadius(20)
+                            }
+                            
+                            Button(action: {
+                                // Add logic to decline
+                            }) {
+                                Image(systemName: "xmark")
+                                    .foregroundColor(.gray)
+                                    .padding(8)
+                            }
+                        }
+                    }
+                    .padding(.horizontal)
+                    .padding(.vertical, 4)
+                }
+            }
         }
     }
 }

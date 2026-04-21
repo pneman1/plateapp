@@ -45,7 +45,10 @@ struct ProfileView: View {
 
                     historySection
                     
-                    RecommendFriendsView(currentUserID: "rwind13")
+                    if let uid = authVM.user?.id {
+                        RecommendFriendsView(currentUserID: uid)
+                        IncomingRequestsView(currentUserID: uid)
+                    }
                 }
                 .padding(.horizontal, 20)
                 .padding(.vertical, 24)
