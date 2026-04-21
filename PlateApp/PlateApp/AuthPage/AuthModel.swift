@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import FirebaseFirestore
 
 struct AuthModel {
     let countryDictionary = ["AF":"93","AL":"355","DZ":"213","US":"1",
@@ -68,4 +69,13 @@ struct AuthModel {
         
         return flag
     }
+}
+
+struct UserInfo: Codable, Identifiable {
+    @DocumentID var id: String?
+    var username: String
+    var email: String
+    var profileImageURL: String
+    var createdAt: Date?
+    var updatedAt: Date?
 }

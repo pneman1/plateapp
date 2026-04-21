@@ -29,6 +29,18 @@ struct SignUpView: View {
                     .keyboardType(.emailAddress)
                     .cornerRadius(6)
                     .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color(.gray), lineWidth: 1))
+                Text("Username")
+                TextField("Username", text: $viewModel.username)
+                    .padding()
+                    .onChange(of: viewModel.username) { _,_ in
+                        viewModel.errorMessage = nil
+                    }
+                    .frame(width: 300, height: 50)
+                    .textInputAutocapitalization(.never)
+                    .autocorrectionDisabled(true)
+                    .keyboardType(.default)
+                    .cornerRadius(6)
+                    .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color(.gray), lineWidth: 1))
                 Text("Password")
                 SecureField("Password", text: $viewModel.password)
                     .padding()

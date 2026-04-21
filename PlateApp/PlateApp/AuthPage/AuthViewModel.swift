@@ -7,6 +7,8 @@
 import SwiftUI
 import Foundation
 import FirebaseAuth
+import Firebase
+import FirebaseFirestore
 
 
 
@@ -15,6 +17,10 @@ class AuthViewModel: ObservableObject {
     @Published var password = ""
     @Published var isAuthenticated: Bool = false
     @Published var errorMessage: String? = nil
+    @Published var username = ""
+    private var db = Firestore.firestore()
+    
+    @Published var user: UserInfo? = nil
     
     @MainActor
     private func setError(_ message : String) {
@@ -51,15 +57,40 @@ class AuthViewModel: ObservableObject {
     }
     
     func signUp() {
-        guard !email.isEmpty, !password.isEmpty else {
+        guard !email.isEmpty, !password.isEmpty, !username.isEmpty else {
             Task { await MainActor.run {
                 setError("Please fill in all fields.")
             }}
             return
         }
+        
         Task {
+            let exists = await usernameExists(username)
+            
+            if exists {
+                await MainActor.run {
+                    setError("Username already taken.")
+                }
+                return
+            }
+            
+            
             do {
-                let _ = try await AuthenticationManager.shared.createUser(email: email, password: password)
+                let result = try await AuthenticationManager.shared.createUser(email: email, password: password)
+                
+                let uid = result.uid
+                
+                let newUser = UserInfo(
+                    id: uid,
+                    username: username,
+                    email: email,
+                    profileImageURL: "",
+                    createdAt : Date(),
+                    updatedAt: Date()
+                )
+                
+                try db.collection("users").document(uid).setData(from: newUser)
+                
                 await MainActor.run {
                     withAnimation {
                         self.isAuthenticated = true
@@ -80,6 +111,7 @@ class AuthViewModel: ObservableObject {
         }
     }
     
+    
     func signOut() {
         Task {
             do {
@@ -92,6 +124,33 @@ class AuthViewModel: ObservableObject {
                 print("Error: \(error)")
             }
         }
+    }
+    
+    func usernameExists(_ username: String) async -> Bool {
+        do {
+                let snapshot = try await db.collection("users")
+                    .whereField("username", isEqualTo: username)
+                    .getDocuments()
+                
+                return !snapshot.documents.isEmpty
+            } catch {
+                print("Error checking username: \(error)")
+                return true // fail safe (treat as taken)
+            }
+    }
+    
+    func createUserInFirestore(uid:String){
+        do {
+                try db.collection("users").document(uid).setData(from: user)
+                
+                DispatchQueue.main.async {
+                    self.user = self.user
+                    self.isAuthenticated = true
+                }
+                
+            } catch {
+                self.errorMessage = error.localizedDescription
+            }
     }
     
 }

@@ -124,4 +124,76 @@ final class PlateAppUITests: XCTestCase {
             XCTAssertTrue(feedTitle.waitForExistence(timeout: 10), "Login failed or Feed didn't load.")
         }
     }
+    // MARK: - New View Specific Tests
+
+        func testUploadSheetPresentation() {
+            login()
+
+            // Locates the plus.circle.fill button
+            let uploadButton = app.buttons.element(boundBy: 0) // Or add identifier "upload_nav_button" to your Image/Button
+            XCTAssertTrue(uploadButton.exists, "The upload button should be visible in the toolbar.")
+            uploadButton.tap()
+
+            // Assuming UploadView has a title or unique element
+            let uploadViewElement = app.staticTexts.firstMatch // Adjust based on your UploadView content
+            XCTAssertTrue(uploadViewElement.waitForExistence(timeout: 5), "The Upload sheet should appear after tapping the plus button.")
+        }
+
+        func testDeletePostFlow() {
+            login()
+
+            // 1. Check if a delete button exists on the first FeedCard
+            let deleteButton = app.buttons["trash"].firstMatch
+            // Note: You might need to add .accessibilityIdentifier("delete_button") to your trash button
+            
+            XCTAssertTrue(deleteButton.exists, "The delete button should be visible on the feed card.")
+            
+            // 2. Capture the initial count of posts or check visibility
+            let initialPost = app.staticTexts["post_city_label"].firstMatch
+            let initialCityName = initialPost.label
+            
+            deleteButton.tap()
+            
+            // 3. Verify the post is removed or the UI updates
+            // We wait for the specific city label to disappear or change
+            let postDeleted = expectation(for: NSPredicate(format: "exists == false"), evaluatedWith: initialPost, handler: nil)
+            let result = XCTWaiter().wait(for: [postDeleted], timeout: 5.0)
+            
+            XCTAssertEqual(result, .completed, "The post should be removed from the UI after tapping delete.")
+        }
+
+        func testFeedLockingMechanism() {
+            login()
+
+            // If userHasPostedToday is false, the "Post to Unlock" overlay should appear
+            // Note: Since this is a UI test, you'd trigger this by using a test user
+            // who hasn't posted or mocking the state.
+            
+            let lockOverlayText = app.staticTexts["Post to Unlock"]
+            
+            // This test assumes the mock state where userHasPostedToday = false
+            if lockOverlayText.exists {
+                XCTAssertTrue(lockOverlayText.isHittable == false, "The overlay should block interaction with the card.")
+                
+                // Check if the image behind it is shielded
+                let feedImage = app.images.firstMatch
+                XCTAssertFalse(feedImage.isHittable, "User should not be able to interact with the post image when locked.")
+            }
+        }
+
+        func testMapAnnotationExists() {
+            login()
+
+            app.tabBars.buttons["Map"].tap()
+            
+            // MapKit annotations are sometimes tricky to find.
+            // They are often identified as "Other" elements or by their label.
+            let map = app.maps.firstMatch
+            XCTAssertTrue(map.waitForExistence(timeout: 5))
+            
+            // Check for any annotation (Circle in your code)
+            // Since you used Annotation("", ...), we look for the count text overlay
+            let annotationLabel = app.staticTexts.containing(NSPredicate(format: "label MATCHES '[0-9]+'")).firstMatch
+            XCTAssertTrue(annotationLabel.exists, "At least one heatmap annotation should be visible on the map.")
+        }
 }
