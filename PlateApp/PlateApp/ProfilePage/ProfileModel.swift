@@ -25,3 +25,12 @@ struct UserProfile: Codable, Identifiable {
     var profileImageURL: String
     var email: String
 }
+
+struct FriendRequest: Codable, Identifiable {
+    @DocumentID var id: String?
+    var userIDs: [String]
+    var senderID: String
+    var status: String
+    var recipientID: String
+    var timestamp: Date
+}

@@ -4,6 +4,7 @@ import FirebaseFirestore
 class RecommendationViewModel: ObservableObject {
     @Published var suggestedUsers: [UserProfile] = []
     private var db = Firestore.firestore()
+    @Published var incomingRequests: [UserProfile] = []
     
     @MainActor
     func fetchRecommendations(currentUserID: String) async {
@@ -50,6 +51,7 @@ class RecommendationViewModel: ObservableObject {
             "userIDs": [myID, targetID],
             "senderID": myID,
             "status": "pending",
+            "recipientID": targetID,
             "timestamp": FieldValue.serverTimestamp()
         ]
         
@@ -57,5 +59,36 @@ class RecommendationViewModel: ObservableObject {
         
         // Remove from UI immediately for that "snappy" feel
         self.suggestedUsers.removeAll(where: { $0.id == targetID })
+    }
+    
+    @MainActor
+    func fetchRequests(currentUserID: String) async {
+        do {
+            let friendshipSnapshot = try await db.collection("friendships")
+                .whereField("recipientID", isEqualTo: currentUserID)
+                .whereField("status", isEqualTo: "pending")
+                .getDocuments()
+            
+            let senderIDs = friendshipSnapshot.documents.compactMap { $0.data()["senderID"] as? String }
+            
+            if senderIDs.isEmpty {
+                        self.incomingRequests = []
+                        return
+                    }
+            
+            let usersSnapshot = try await db.collection("users")
+                        .whereField(FieldPath.documentID(), in: senderIDs)
+                        .getDocuments()
+            
+            let profiles = usersSnapshot.documents.compactMap { document -> UserProfile? in
+                        try? document.data(as: UserProfile.self)
+                    }
+            
+            self.incomingRequests = profiles
+    
+        } catch {
+            print("Error fetching requests")
+        }
+
     }
 }
