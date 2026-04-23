@@ -122,6 +122,8 @@ class AuthViewModel: ObservableObject {
                 
                 try db.collection("users").document(uid).setData(from: newUser)
                 
+                self.user = newUser
+                
                 await MainActor.run {
                     withAnimation {
                         self.isAuthenticated = true
@@ -142,7 +144,7 @@ class AuthViewModel: ObservableObject {
         }
     }
     
-    
+    @MainActor
     func signOut() {
         Task {
             do {
@@ -150,6 +152,14 @@ class AuthViewModel: ObservableObject {
                 await MainActor.run {
                     isAuthenticated = false
                 }
+                
+                self.user = nil
+                self.email = ""
+                self.password = ""
+                self.username = ""
+                self.errorMessage = nil
+                
+                print("Successfully signed out and cleared local state.")
 
             } catch {
                 print("Error: \(error)")

@@ -119,7 +119,9 @@ struct IncomingRequestsView: View {
                             }
                             
                             Button(action: {
-                                // Add logic to decline
+                                Task {
+                                    await viewModel.declineRequest(currentUserID: currentUserID, targetID: user.id ?? "")
+                                }
                             }) {
                                 Image(systemName: "xmark")
                                     .foregroundColor(.gray)

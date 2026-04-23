@@ -22,6 +22,9 @@ class RecommendationViewModel: ObservableObject {
                 }
             }
             
+            print(excludedIDs)
+            print(currentUserID)
+            
             // 2. Fetch a batch of users (fetching 50 to ensure we have enough after filtering)
             let userSnapshot = try await db.collection("users")
                 .limit(to: 50)
@@ -31,6 +34,7 @@ class RecommendationViewModel: ObservableObject {
             self.suggestedUsers = userSnapshot.documents.compactMap { doc -> UserProfile? in
                 let user = try? doc.data(as: UserProfile.self)
                 if let id = user?.id, !excludedIDs.contains(id) {
+                    print(id)
                     return user
                 }
                 return nil
