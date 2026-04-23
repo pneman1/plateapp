@@ -58,7 +58,6 @@ struct RecommendFriendsView: View {
         }
         .task {
             await viewModel.fetchRecommendations(currentUserID: currentUserID)
-            await viewModel.fetchRequests(currentUserID: currentUserID)
         }
     }
 }
@@ -106,7 +105,9 @@ struct IncomingRequestsView: View {
                         
                         HStack {
                             Button(action: {
-                                // Add logic to accept request
+                                Task {
+                                    await viewModel.acceptRequest(currentUserID: currentUserID, targetID: user.id ?? "")
+                                }
                             }) {
                                 Text("ACCEPT")
                                     .font(.system(size: 12, weight: .bold))
@@ -130,6 +131,9 @@ struct IncomingRequestsView: View {
                     .padding(.vertical, 4)
                 }
             }
+        }
+        .task {
+            await viewModel.fetchRequests(currentUserID: currentUserID)
         }
     }
 }

@@ -82,13 +82,10 @@ class RecommendationViewModel: ObservableObject {
                         .whereField(FieldPath.documentID(), in: senderIDs)
                         .getDocuments()
             
-            print(usersSnapshot)
             
             let profiles = usersSnapshot.documents.compactMap { document -> UserProfile? in
                         try? document.data(as: UserProfile.self)
                     }
-            
-            print(profiles)
             
             self.incomingRequests = profiles
     
@@ -96,5 +93,61 @@ class RecommendationViewModel: ObservableObject {
             print("Error fetching requests")
         }
 
+    }
+    
+    
+    @MainActor
+    func acceptRequest(currentUserID: String, targetID: String) async {
+        let updatePayload: [String: Any] = ["status": "accepted"]
+        
+        do {
+            let friendshipSnapshot = try await db.collection("friendships")
+                .whereField("recipientID", isEqualTo: currentUserID)
+                .whereField("status", isEqualTo: "pending")
+                .whereField("senderID", isEqualTo: targetID)
+                .getDocuments()
+            
+            
+            guard let document = friendshipSnapshot.documents.first else {
+                    print("No pending request found.")
+                    return
+                }
+
+            try await document.reference.updateData(updatePayload)
+            
+            self.incomingRequests.removeAll(where: { $0.id == targetID })
+            
+            print("friendship added successfully")
+            
+        } catch {
+            print("error accepting friend request")
+        }
+    }
+    
+    @MainActor
+    func declineRequest(currentUserID: String, targetID: String) async {
+        
+        do {
+            let friendshipSnapshot = try await db.collection("friendships")
+                .whereField("recipientID", isEqualTo: currentUserID)
+                .whereField("status", isEqualTo: "pending")
+                .whereField("senderID", isEqualTo: targetID)
+                .getDocuments()
+            
+            
+            guard let document = friendshipSnapshot.documents.first else {
+                    print("No pending request found.")
+                    return
+                }
+
+            try await document.reference.delete()
+            
+            self.incomingRequests.removeAll(where: { $0.id == targetID })
+            
+            print("friendship removed successfully")
+            
+        } catch {
+            print("error declining friend request")
+        }
     }
 }
