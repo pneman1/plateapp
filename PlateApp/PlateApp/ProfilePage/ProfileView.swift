@@ -49,6 +49,18 @@ struct ProfileView: View {
                 .padding(.vertical, 24)
             }
         }
+        .sheet(isPresented: Binding(get: { viewModel.isShowingImagePicker }, set: { viewModel.isShowingImagePicker = $0 })) {
+            CameraPicker(image: Binding(get: { viewModel.selectedImage }, set: { viewModel.selectedImage = $0 }))
+        }
+        .onReceive(viewModel.$selectedImage) { img in
+            if let img = img {
+                viewModel.uploadProfileImage(image: img)
+                // clear selected image to avoid re-upload on view redraws
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                    viewModel.selectedImage = nil
+                }
+            }
+        }
         .navigationTitle("Profile")
         .navigationBarTitleDisplayMode(.inline)
     }
@@ -61,11 +73,28 @@ struct ProfileView: View {
                         .fill(Color.white.opacity(0.14))
                         .frame(width: 82, height: 82)
 
-                    Image(systemName: "person.crop.circle.fill")
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 70, height: 70)
-                        .foregroundStyle(.white)
+                    if let urlString = profile.profileImageURL, let url = URL(string: urlString) {
+                        AsyncImage(url: url) { image in
+                            image
+                                .resizable()
+                                .scaledToFill()
+                        } placeholder: {
+                            ProgressView()
+                                .tint(.white)
+                        }
+                        .frame(width: 82, height: 82)
+                        .clipShape(Circle())
+                    } else {
+                        Image(systemName: "person.crop.circle.fill")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 70, height: 70)
+                            .foregroundStyle(.white)
+                    }
+                }
+                .onTapGesture {
+                    // show image picker to change profile image
+                    viewModel.isShowingImagePicker = true
                 }
 
                 VStack(alignment: .leading, spacing: 6) {
@@ -84,6 +113,8 @@ struct ProfileView: View {
             }
         }
     }
+
+    // ...existing code...
 
     private func statsSection(_ profile: ProfileSummary) -> some View {
         HStack(spacing: 12) {
