@@ -9,9 +9,9 @@ import CoreLocation
 import FirebaseFirestore
 
 struct FeedView: View {
-    @StateObject private var viewModel = FeedViewModel()
     @EnvironmentObject var authVM: AuthViewModel
-
+    @StateObject private var viewModel = FeedViewModel()
+    
     @State private var showingUpload = false
 
     @State private var userHasPostedToday: Bool = true

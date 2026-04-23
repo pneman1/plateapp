@@ -8,6 +8,7 @@
 import SwiftUI
 import FirebaseFirestore
 import Foundation
+import FirebaseAuth
 
 
 @MainActor
@@ -16,29 +17,59 @@ class FeedViewModel: ObservableObject{
     
     private var db = Firestore.firestore()
     
-    init () {
-        fetchPosts()
+    init() {
+        Task {
+            await fetchPosts()
+        }
     }
 
-    func fetchPosts(){
-        db.collection("images")
-            .order(by: "timestamp", descending: true)
-            .addSnapshotListener { (querySnapshot, error) in
-                
-                self.posts = querySnapshot?.documents.compactMap { doc in
-                    do {
-                        // This is the "Gold Standard" way to decode Firestore documents
-                        return try doc.data(as: Post.self)
-                    } catch {
-                        print("Decoding Error for \(doc.documentID): \(error)")
-                        // This print will tell you exactly which field (e.g. "userID") is missing or wrong
-                        return nil
-                    }
-                } ?? []
-                
-                print(self.posts)
-            }
+    func fetchPosts() async {
+        guard let uid = Auth.auth().currentUser?.uid else {return}
         
+        do {
+            let friendshipSnapshot = try await db.collection("friendships")
+                .whereField("userIDs", arrayContains: uid)
+                .whereField("status", isEqualTo: "accepted")
+                .getDocuments()
+            
+            // 2. Map the documents to get the "other" person's ID
+            var friendIDs = friendshipSnapshot.documents.compactMap { doc -> String? in
+                guard let ids = doc.data()["userIDs"] as? [String] else { return nil }
+                // Filter out the current user, leaving only the friend's ID
+                return ids.first { $0 != uid }
+            }
+            
+            friendIDs.append(uid)
+            
+            let finalIDs = Array(friendIDs.prefix(30))
+            
+            guard !finalIDs.isEmpty else { return }
+            
+            
+            
+            
+            
+            db.collection("images")
+                .whereField("userID", in: finalIDs)
+                .order(by: "timestamp", descending: true)
+                .addSnapshotListener { (querySnapshot, error) in
+                    
+                    self.posts = querySnapshot?.documents.compactMap { doc in
+                        do {
+                            // This is the "Gold Standard" way to decode Firestore documents
+                            return try doc.data(as: Post.self)
+                        } catch {
+                            print("Decoding Error for \(doc.documentID): \(error)")
+                            // This print will tell you exactly which field (e.g. "userID") is missing or wrong
+                            return nil
+                        }
+                    } ?? []
+                    
+                    print(self.posts)
+                }
+        } catch {
+            print("error fetching feed")
+        }
     }
     
     func uploadMockPost() {
