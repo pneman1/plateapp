@@ -39,4 +39,31 @@ class StorageManager {
             }
         }
     }
+
+    /// Uploads a profile image and returns the public download URL.
+    /// Uses a smaller compression quality by default to save bandwidth.
+    func uploadProfileImage(image: UIImage, completion: @escaping (Result<URL, Error>) -> Void) {
+        guard let imageData = image.jpegData(compressionQuality: 0.5) else {
+            completion(.failure(NSError(domain: "ImageConversion", code: 0)))
+            return
+        }
+
+        let filename = "profile_\(UUID().uuidString).jpg"
+        let ref = storage.child("profile_images/\(filename)")
+
+        ref.putData(imageData, metadata: nil) { metadata, error in
+            if let error = error {
+                completion(.failure(error))
+                return
+            }
+
+            ref.downloadURL { url, error in
+                if let error = error {
+                    completion(.failure(error))
+                } else if let url = url {
+                    completion(.success(url))
+                }
+            }
+        }
+    }
 }
