@@ -11,6 +11,7 @@ import Firebase
 struct Post: Identifiable, Codable {
     @DocumentID var id: String?
     let userID: String
+    let username: String
     let imageURL: String
     let caption: String
     let timestamp: Date

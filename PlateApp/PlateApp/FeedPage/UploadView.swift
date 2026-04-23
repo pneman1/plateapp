@@ -10,8 +10,10 @@ import FirebaseStorage
 import FirebaseFirestore
 import CoreLocation
 import Foundation
+import FirebaseAuth
 
 struct UploadView: View {
+    @EnvironmentObject var authVM: AuthViewModel
     @State private var currentLocation: CLLocation?
     @State private var showCamera = false
     @State private var capturedImage: UIImage?
@@ -127,7 +129,8 @@ struct UploadView: View {
         
         let db = Firestore.firestore()
         let newPost = Post(
-            userID: "dev_test", // Future: replace with authVM.currentUser.uid
+            userID: Auth.auth().currentUser?.uid ?? "",
+            username: authVM.user?.username ?? "",
             imageURL: imageURL,
             caption: caption,
             timestamp: Date(),

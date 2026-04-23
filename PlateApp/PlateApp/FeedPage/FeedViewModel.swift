@@ -43,57 +43,31 @@ class FeedViewModel: ObservableObject{
             
             let finalIDs = Array(friendIDs.prefix(30))
             
-            guard !finalIDs.isEmpty else { return }
+            guard !finalIDs.isEmpty else {
+                print("no friends")
+                return
+            }
+        
             
-            
-            
-            
-            
+            // 6. Set up the Real-time listener for posts
             db.collection("images")
                 .whereField("userID", in: finalIDs)
                 .order(by: "timestamp", descending: true)
                 .addSnapshotListener { (querySnapshot, error) in
+                    if let error = error {
+                        print("Error fetching feed: \(error.localizedDescription)")
+                        return
+                    }
                     
+                    // Decode the posts into your local published array
                     self.posts = querySnapshot?.documents.compactMap { doc in
-                        do {
-                            // This is the "Gold Standard" way to decode Firestore documents
-                            return try doc.data(as: Post.self)
-                        } catch {
-                            print("Decoding Error for \(doc.documentID): \(error)")
-                            // This print will tell you exactly which field (e.g. "userID") is missing or wrong
-                            return nil
-                        }
+                        try? doc.data(as: Post.self)
                     } ?? []
                     
                     print(self.posts)
                 }
         } catch {
             print("error fetching feed")
-        }
-    }
-    
-    func uploadMockPost() {
-        let newPost = Post(
-            userID: "upload_test",
-            imageURL: "https://i.imgur.com/RpzNeWO.jpeg",
-            caption: "Hello from Seattle!",
-            timestamp: Date(),
-            location: PlateLocation(
-                geopoint: GeoPoint(latitude: 47.71466349381602, longitude: -122.36316745682254),
-                restaurantName: "SEATTLE"
-            ),
-            rating: 5,
-            mealType: "Lunch",
-            isPublic: true
-        )
-        
-        let collectionRef = db.collection("images")
-        
-        do {
-            try collectionRef.addDocument(from: newPost)
-            print("✅ Success: Mock post uploaded to Firestore!")
-        } catch {
-            print("❌ Error uploading post: \(error.localizedDescription)")
         }
     }
     
