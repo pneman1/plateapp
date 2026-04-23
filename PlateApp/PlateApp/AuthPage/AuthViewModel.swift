@@ -22,9 +22,38 @@ class AuthViewModel: ObservableObject {
     
     @Published var user: UserInfo? = nil
     
+    init() {
+        // Check if we already have a session
+        if let _ = Auth.auth().currentUser {
+            Task {
+                await fetchCurrentUser()
+            }
+        }
+    }
+    
     @MainActor
     private func setError(_ message : String) {
         self.errorMessage = message
+    }
+    
+    @MainActor
+    func fetchCurrentUser() async {
+        guard let uid = Auth.auth().currentUser?.uid else {
+            self.user = nil
+            return
+        }
+        
+        do {
+            // 2. Fetch the document from the "users" collection
+            let snapshot = try await db.collection("users").document(uid).getDocument()
+            
+            // 3. Decode it into your UserInfo model
+            self.user = try snapshot.data(as: UserInfo.self)
+            self.isAuthenticated = true
+        } catch {
+            print("Error fetching user profile: \(error)")
+            self.user = nil
+        }
     }
     
     func signIn() {
@@ -41,11 +70,13 @@ class AuthViewModel: ObservableObject {
                                     email: email.trimmingCharacters(in: .whitespacesAndNewlines),
                                     password: password
                                 )
-                                
+                
+                await fetchCurrentUser()
                 await MainActor.run {
                     withAnimation {
                         self.isAuthenticated = true
                     }
+                    
                 }
             } catch {
                 print(error)
@@ -91,6 +122,8 @@ class AuthViewModel: ObservableObject {
                 
                 try db.collection("users").document(uid).setData(from: newUser)
                 
+                self.user = newUser
+                
                 await MainActor.run {
                     withAnimation {
                         self.isAuthenticated = true
@@ -111,7 +144,7 @@ class AuthViewModel: ObservableObject {
         }
     }
     
-    
+    @MainActor
     func signOut() {
         Task {
             do {
@@ -119,6 +152,14 @@ class AuthViewModel: ObservableObject {
                 await MainActor.run {
                     isAuthenticated = false
                 }
+                
+                self.user = nil
+                self.email = ""
+                self.password = ""
+                self.username = ""
+                self.errorMessage = nil
+                
+                print("Successfully signed out and cleared local state.")
 
             } catch {
                 print("Error: \(error)")

@@ -44,6 +44,11 @@ struct ProfileView: View {
                     .accessibilityIdentifier("profileLogOutButton")
 
                     historySection
+                    
+                    if let uid = authVM.user?.id {
+                        RecommendFriendsView(currentUserID: uid)
+                        IncomingRequestsView(currentUserID: uid)
+                    }
                 }
                 .padding(.horizontal, 20)
                 .padding(.vertical, 24)
