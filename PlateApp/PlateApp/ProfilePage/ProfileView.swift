@@ -54,6 +54,18 @@ struct ProfileView: View {
                 .padding(.vertical, 24)
             }
         }
+        .sheet(isPresented: Binding(get: { viewModel.isShowingImagePicker }, set: { viewModel.isShowingImagePicker = $0 })) {
+            CameraPicker(image: Binding(get: { viewModel.selectedImage }, set: { viewModel.selectedImage = $0 }))
+        }
+        .onChange(of: viewModel.selectedImage) { newImage in
+            if let img = newImage {
+                print("[ProfileView] selectedImage changed — uploading")
+                viewModel.uploadProfileImage(image: img)
+            }
+        }
+        .onChange(of: viewModel.isShowingImagePicker) { newValue in
+            print("[ProfileView] isShowingImagePicker = \(newValue)")
+        }
         .navigationTitle("Profile")
         .navigationBarTitleDisplayMode(.inline)
     }
@@ -66,11 +78,43 @@ struct ProfileView: View {
                         .fill(Color.white.opacity(0.14))
                         .frame(width: 82, height: 82)
 
-                    Image(systemName: "person.crop.circle.fill")
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 70, height: 70)
-                        .foregroundStyle(.white)
+                    if let localImage = viewModel.selectedImage {
+                        Image(uiImage: localImage)
+                            .resizable()
+                            .scaledToFill()
+                            .frame(width: 82, height: 82)
+                            .clipShape(Circle())
+                    } else if let urlString = profile.profileImageURL, let url = URL(string: urlString) {
+                        AsyncImage(url: url) { image in
+                            image
+                                .resizable()
+                                .scaledToFill()
+                        } placeholder: {
+                            ProgressView()
+                                .tint(.white)
+                        }
+                        .frame(width: 82, height: 82)
+                        .clipShape(Circle())
+                    } else {
+                        Image(systemName: "person.crop.circle.fill")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 70, height: 70)
+                            .foregroundStyle(.white)
+                    }
+
+                    if viewModel.isUploadingImage {
+                        Color.black.opacity(0.4)
+                            .frame(width: 82, height: 82)
+                            .clipShape(Circle())
+                        ProgressView()
+                            .tint(.white)
+                    }
+                }
+                .contentShape(Circle())
+                .onTapGesture {
+                    print("[ProfileView] avatar tapped")
+                    viewModel.isShowingImagePicker = true
                 }
 
                 VStack(alignment: .leading, spacing: 6) {
