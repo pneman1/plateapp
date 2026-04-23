@@ -24,9 +24,13 @@ final class ProfileViewModel: ObservableObject {
     private var imagesListener: ListenerRegistration?
     private var userListener: ListenerRegistration?
     private var currentProfileImageURL: String? = nil
+    private var imagesListener: ListenerRegistration?
+    private var userListener: ListenerRegistration?
+    private var currentProfileImageURL: String? = nil
 
     init() {
         loadProfile()
+        observeUserDocument()
         observeUserDocument()
     }
 
@@ -45,7 +49,21 @@ final class ProfileViewModel: ObservableObject {
             .order(by: "timestamp", descending: true)
             .addSnapshotListener { [weak self] querySnapshot, error in
                 guard let self = self else { return }
+        imagesListener?.remove()
+        // Only listen for posts created by this user (assumes Post.userID stores the firebase uid)
+        imagesListener = db.collection("images")
+            .whereField("userID", isEqualTo: user.uid)
+            .order(by: "timestamp", descending: true)
+            .addSnapshotListener { [weak self] querySnapshot, error in
+                guard let self = self else { return }
 
+                if let error = error {
+                    print("Error loading profile posts: \(error)")
+                    self.posts = []
+                    self.profileSummary = self.makeProfileSummary(for: user, posts: [], profileImageURL: self.currentProfileImageURL)
+                    self.isLoading = false
+                    return
+                }
                 if let error = error {
                     print("Error loading profile posts: \(error)")
                     self.posts = []
@@ -57,7 +75,39 @@ final class ProfileViewModel: ObservableObject {
                 let matchingPosts = querySnapshot?.documents.compactMap { document in
                     try? document.data(as: Post.self)
                 } ?? []
+                let matchingPosts = querySnapshot?.documents.compactMap { document in
+                    try? document.data(as: Post.self)
+                } ?? []
 
+                self.posts = matchingPosts
+                self.profileSummary = self.makeProfileSummary(for: user, posts: matchingPosts, profileImageURL: self.currentProfileImageURL)
+                self.isLoading = false
+            }
+    }
+
+    private func observeUserDocument() {
+        guard let user = Auth.auth().currentUser else { return }
+        userListener?.remove()
+
+        userListener = db.collection("users").document(user.uid).addSnapshotListener { [weak self] snapshot, error in
+            guard let self = self else { return }
+            if let error = error {
+                print("Error listening to user doc: \(error)")
+                return
+            }
+
+            if let snapshot = snapshot, snapshot.exists {
+                do {
+                    let userInfo = try snapshot.data(as: UserInfo.self)
+                    self.currentProfileImageURL = userInfo.profileImageURL
+                    // refresh summary with latest image URL
+                    if let firebaseUser = Auth.auth().currentUser {
+                        self.profileSummary = self.makeProfileSummary(for: firebaseUser, posts: self.posts, profileImageURL: self.currentProfileImageURL)
+                    }
+                } catch {
+                    print("Error decoding user doc: \(error)")
+                }
+            }
                 self.posts = matchingPosts
                 self.profileSummary = self.makeProfileSummary(for: user, posts: matchingPosts, profileImageURL: self.currentProfileImageURL)
                 self.isLoading = false
@@ -104,6 +154,7 @@ final class ProfileViewModel: ObservableObject {
     }
 
     private func makeProfileSummary(for user: User, posts: [Post], profileImageURL: String? = nil) -> ProfileSummary {
+    private func makeProfileSummary(for user: User, posts: [Post], profileImageURL: String? = nil) -> ProfileSummary {
         let email = user.email ?? "No email found"
         let defaultDisplayName = email.split(separator: "@").first.map(String.init) ?? "Plate User"
         let displayName = posts.first?.userID.isEmpty == false ? posts.first?.userID ?? defaultDisplayName : defaultDisplayName
@@ -119,6 +170,8 @@ final class ProfileViewModel: ObservableObject {
             totalPosts: posts.count,
             publicPosts: publicPosts,
             privatePosts: privatePosts,
+            favoriteSpot: favoriteSpot,
+            profileImageURL: profileImageURL
             favoriteSpot: favoriteSpot,
             profileImageURL: profileImageURL
         )

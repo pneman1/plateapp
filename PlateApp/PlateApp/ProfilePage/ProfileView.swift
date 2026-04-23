@@ -127,6 +127,8 @@ struct ProfileView: View {
 
     // ...existing code...
 
+    // ...existing code...
+
     private func statsSection(_ profile: ProfileSummary) -> some View {
         HStack(spacing: 12) {
             profileStatCard(title: "Posts", value: "\(profile.totalPosts)")
