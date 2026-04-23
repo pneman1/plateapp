@@ -15,4 +15,5 @@ struct ProfileSummary {
     let publicPosts: Int
     let privatePosts: Int
     let favoriteSpot: String
+    let profileImageURL: String?
 }

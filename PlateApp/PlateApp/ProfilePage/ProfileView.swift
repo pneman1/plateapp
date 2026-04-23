@@ -55,10 +55,6 @@ struct ProfileView: View {
         .onReceive(viewModel.$selectedImage) { img in
             if let img = img {
                 viewModel.uploadProfileImage(image: img)
-                // clear selected image to avoid re-upload on view redraws
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                    viewModel.selectedImage = nil
-                }
             }
         }
         .navigationTitle("Profile")
@@ -73,7 +69,13 @@ struct ProfileView: View {
                         .fill(Color.white.opacity(0.14))
                         .frame(width: 82, height: 82)
 
-                    if let urlString = profile.profileImageURL, let url = URL(string: urlString) {
+                    if let localImage = viewModel.selectedImage {
+                        Image(uiImage: localImage)
+                            .resizable()
+                            .scaledToFill()
+                            .frame(width: 82, height: 82)
+                            .clipShape(Circle())
+                    } else if let urlString = profile.profileImageURL, let url = URL(string: urlString) {
                         AsyncImage(url: url) { image in
                             image
                                 .resizable()
@@ -90,6 +92,15 @@ struct ProfileView: View {
                             .scaledToFit()
                             .frame(width: 70, height: 70)
                             .foregroundStyle(.white)
+                    }
+
+                    if viewModel.isUploadingImage {
+                        Color.black.opacity(0.4)
+                            .frame(width: 82, height: 82)
+                            .clipShape(Circle())
+
+                        ProgressView()
+                            .tint(.white)
                     }
                 }
                 .onTapGesture {

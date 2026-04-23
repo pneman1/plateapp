@@ -18,6 +18,7 @@ final class ProfileViewModel: ObservableObject {
     @Published var isShowingImagePicker = false
     @Published var selectedImage: UIImage? = nil
     @Published var isUploadingImage = false
+    @Published var uploadErrorMessage: String? = nil
 
     private let db = Firestore.firestore()
     private var imagesListener: ListenerRegistration?
@@ -162,18 +163,28 @@ final class ProfileViewModel: ObservableObject {
 
                 switch result {
                 case .success(let url):
-                    // update user's Firestore document with the new URL
-                    self.db.collection("users").document(user.uid).updateData(["profileImageURL": url.absoluteString]) { error in
+                    let urlString = url.absoluteString
+                    // write to user doc (create if missing) using merge so we don't fail if the doc doesn't exist
+                    self.db.collection("users").document(user.uid).setData(["profileImageURL": urlString], merge: true) { error in
                         if let error = error {
-                            print("Failed to update user profile image URL: \(error)")
+                            print("Failed to set user profile image URL: \(error)")
+                            self.uploadErrorMessage = "Failed to save profile image."
                         } else {
-                            // Firestore user listener will pick up the change and update profileSummary
+                            // Update local state immediately so UI shows the new image without waiting for the listener
+                            self.currentProfileImageURL = urlString
+                            if let firebaseUser = Auth.auth().currentUser {
+                                self.profileSummary = self.makeProfileSummary(for: firebaseUser, posts: self.posts, profileImageURL: self.currentProfileImageURL)
+                            }
+                            // clear the selected image now that upload succeeded
+                            self.selectedImage = nil
+                            self.uploadErrorMessage = nil
                             print("Profile image URL updated")
                         }
                     }
 
                 case .failure(let error):
                     print("Profile image upload error: \(error)")
+                    self.uploadErrorMessage = error.localizedDescription
                 }
             }
         }
