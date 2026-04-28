@@ -7,6 +7,7 @@
 import SwiftUI
 import CoreLocation
 import FirebaseFirestore
+import Kingfisher
 
 struct FeedView: View {
     @EnvironmentObject var authVM: AuthViewModel
@@ -167,15 +168,24 @@ struct FeedCardView: View {
             .padding(.vertical, 12)
 
             ZStack(alignment: .bottom) {
-                AsyncImage(url: URL(string: post.imageURL)) { image in
-                    image
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
-                } placeholder: {
-                    Color.gray.opacity(0.2)
-                }
-                .frame(width: UIScreen.main.bounds.width - 40, height: 500)
-                .clipShape(RoundedRectangle(cornerRadius: 30))
+                KFImage(URL(string: post.imageURL))
+                    .placeholder {
+                        Rectangle()
+                            .fill(Color.gray.opacity(0.2))
+                            .overlay(ProgressView().tint(.white))
+                    }
+                    .retry(maxCount: 3, interval: .seconds(1))
+                    .cacheOriginalImage()
+                    .onSuccess { result in
+                        print("Image loaded successfully: \(result.cacheType)")
+                    }
+                    .onFailure { error in
+                        print("Image failed to load: \(error.localizedDescription)")
+                    }
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+                    .frame(width: UIScreen.main.bounds.width - 40, height: 500)
+                    .clipShape(RoundedRectangle(cornerRadius: 30))
 
                 VStack(alignment: .leading, spacing: 4) {
                     HStack(alignment: .bottom) {

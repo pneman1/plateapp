@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Kingfisher
 
 struct ProfileView: View {
     @StateObject private var viewModel = ProfileViewModel()
@@ -228,16 +229,25 @@ private struct ProfileHistoryCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-            AsyncImage(url: URL(string: post.imageURL)) { image in
-                image
-                    .resizable()
-                    .aspectRatio(contentMode: .fill)
-            } placeholder: {
-                Color.gray.opacity(0.2)
-            }
-            .frame(height: 165)
-            .frame(maxWidth: .infinity)
-            .clipShape(RoundedRectangle(cornerRadius: 18))
+            KFImage(URL(string: post.imageURL))
+                .placeholder {
+                    Rectangle()
+                        .fill(Color.gray.opacity(0.2))
+                        .overlay(ProgressView().tint(.white))
+                }
+                .retry(maxCount: 3, interval: .seconds(1))
+                .cacheOriginalImage()
+                .onSuccess { result in
+                    print("Image loaded successfully: \(result.cacheType)")
+                }
+                .onFailure { error in
+                    print("Image failed to load: \(error.localizedDescription)")
+                }
+                .resizable()
+                .aspectRatio(contentMode: .fill)
+                .frame(height: 165)
+                .frame(maxWidth: .infinity)
+                .clipShape(RoundedRectangle(cornerRadius: 18))
 
             VStack(alignment: .leading, spacing: 4) {
                 Text(post.locationString)
