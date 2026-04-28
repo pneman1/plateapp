@@ -19,6 +19,7 @@ struct UploadView: View {
     @State private var capturedImage: UIImage?
     @State private var caption: String = ""
     @State private var restaurantName: String = ""
+    @State private var homeCooked: Bool = false
     @State private var isUploading = false
     @State private var rating: Int = 5
     @State private var mealType: String = "Lunch"
@@ -49,9 +50,23 @@ struct UploadView: View {
                     }
                 }
 
-                TextField("Restaurant Name", text: $restaurantName)
-                    .textFieldStyle(.roundedBorder)
-                    .padding(.horizontal)
+                HStack(alignment: .center) {
+                    TextField("Restaurant Name", text: $restaurantName)
+                        .textFieldStyle(.roundedBorder)
+                        .disabled(homeCooked)
+
+                    Toggle("Home cooked", isOn: $homeCooked)
+                        .toggleStyle(.switch)
+                        .padding(.leading, 8)
+                }
+                .padding(.horizontal)
+
+                if homeCooked {
+                    Text("Home-cooked posts are private and won't appear on the map")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                        .padding(.horizontal)
+                }
                 HStack {
                     Text("Rating:")
                         .font(.headline)
@@ -87,7 +102,7 @@ struct UploadView: View {
                         createPost()
                     }
                     .buttonStyle(.borderedProminent)
-                    .disabled(capturedImage == nil || restaurantName.isEmpty)
+                    .disabled(capturedImage == nil || (!homeCooked && restaurantName.isEmpty))
                 }
                 
                 Spacer()
@@ -142,7 +157,8 @@ struct UploadView: View {
             ),
             rating: rating,
             mealType: mealType,
-            isPublic: true
+            isPublic: true,
+            homeCooked: homeCooked
         )
         
         do {
