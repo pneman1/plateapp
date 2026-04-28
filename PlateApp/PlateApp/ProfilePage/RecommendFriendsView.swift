@@ -68,74 +68,79 @@ struct IncomingRequestsView: View {
     let currentUserID: String // Pass this in from your Auth state
     
     var body: some View {
-        VStack(alignment: .leading) {
-            Text("INCOMING REQUESTS")
-                .font(.caption)
-                .fontWeight(.bold)
-                .foregroundColor(.gray)
-                .padding(.horizontal)
+        if viewModel.incomingRequests.isEmpty {
             
-            if viewModel.incomingRequests.isEmpty {
-                            Text("No pending requests")
-                                .font(.subheadline)
-                                .foregroundColor(.secondary)
-                                .padding(.horizontal)
-            } else {
-                ForEach(viewModel.incomingRequests) { user in
-                    HStack {
-                        // Profile Image
-                        AsyncImage(url: URL(string: user.profileImageURL)) { image in
-                            image.resizable()
-                        } placeholder: {
-                            Circle().fill(Color.gray.opacity(0.3))
-                        }
-                        .frame(width: 45, height: 45)
-                        .clipShape(Circle())
-                        
-                        VStack(alignment: .leading) {
-                            Text(user.username)
-                                .fontWeight(.semibold)
-                            Text("wants to be your friend")
-                                .font(.caption)
-                                .foregroundColor(.gray)
-                        }
-                        
-                        Spacer()
-                        
-                        
+        } else {
+            VStack(alignment: .leading) {
+                Text("INCOMING REQUESTS")
+                    .font(.caption)
+                    .fontWeight(.bold)
+                    .foregroundColor(.gray)
+                    .padding(.horizontal)
+                
+                if viewModel.incomingRequests.isEmpty {
+                                Text("No pending requests")
+                                    .font(.subheadline)
+                                    .foregroundColor(.secondary)
+                                    .padding(.horizontal)
+                } else {
+                    ForEach(viewModel.incomingRequests) { user in
                         HStack {
-                            Button(action: {
-                                Task {
-                                    await viewModel.acceptRequest(currentUserID: currentUserID, targetID: user.id ?? "")
-                                }
-                            }) {
-                                Text("ACCEPT")
-                                    .font(.system(size: 12, weight: .bold))
-                                    .foregroundColor(.white)
-                                    .padding(.horizontal, 12)
-                                    .padding(.vertical, 8)
-                                    .background(Color.blue)
-                                    .cornerRadius(20)
+                            // Profile Image
+                            AsyncImage(url: URL(string: user.profileImageURL)) { image in
+                                image.resizable()
+                            } placeholder: {
+                                Circle().fill(Color.gray.opacity(0.3))
+                            }
+                            .frame(width: 45, height: 45)
+                            .clipShape(Circle())
+                            
+                            VStack(alignment: .leading) {
+                                Text(user.username)
+                                    .fontWeight(.semibold)
+                                Text("wants to be your friend")
+                                    .font(.caption)
+                                    .foregroundColor(.gray)
                             }
                             
-                            Button(action: {
-                                Task {
-                                    await viewModel.declineRequest(currentUserID: currentUserID, targetID: user.id ?? "")
+                            Spacer()
+                            
+                            
+                            HStack {
+                                Button(action: {
+                                    Task {
+                                        await viewModel.acceptRequest(currentUserID: currentUserID, targetID: user.id ?? "")
+                                    }
+                                }) {
+                                    Text("ACCEPT")
+                                        .font(.system(size: 12, weight: .bold))
+                                        .foregroundColor(.white)
+                                        .padding(.horizontal, 12)
+                                        .padding(.vertical, 8)
+                                        .background(Color.blue)
+                                        .cornerRadius(20)
                                 }
-                            }) {
-                                Image(systemName: "xmark")
-                                    .foregroundColor(.gray)
-                                    .padding(8)
+                                
+                                Button(action: {
+                                    Task {
+                                        await viewModel.declineRequest(currentUserID: currentUserID, targetID: user.id ?? "")
+                                    }
+                                }) {
+                                    Image(systemName: "xmark")
+                                        .foregroundColor(.gray)
+                                        .padding(8)
+                                }
                             }
                         }
+                        .padding(.horizontal)
+                        .padding(.vertical, 4)
                     }
-                    .padding(.horizontal)
-                    .padding(.vertical, 4)
                 }
             }
+            .task {
+                await viewModel.fetchRequests(currentUserID: currentUserID)
+            }
         }
-        .task {
-            await viewModel.fetchRequests(currentUserID: currentUserID)
-        }
+        
     }
 }

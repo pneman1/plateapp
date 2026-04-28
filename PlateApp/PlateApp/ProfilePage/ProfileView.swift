@@ -32,6 +32,13 @@ struct ProfileView: View {
                             .frame(maxWidth: .infinity, alignment: .center)
                     }
 
+                    historySection
+                    
+                    if let uid = authVM.user?.id {
+                        RecommendFriendsView(currentUserID: uid)
+                        IncomingRequestsView(currentUserID: uid)
+                    }
+                    
                     Button("Log Out") {
                         authVM.signOut()
                     }
@@ -42,16 +49,12 @@ struct ProfileView: View {
                     .foregroundColor(.white)
                     .cornerRadius(10)
                     .accessibilityIdentifier("profileLogOutButton")
-
-                    historySection
-                    
-                    if let uid = authVM.user?.id {
-                        RecommendFriendsView(currentUserID: uid)
-                        IncomingRequestsView(currentUserID: uid)
-                    }
                 }
                 .padding(.horizontal, 20)
                 .padding(.vertical, 24)
+            }
+            .refreshable {
+                await viewModel.loadProfile()
             }
         }
         .sheet(isPresented: Binding(get: { viewModel.isShowingImagePicker }, set: { viewModel.isShowingImagePicker = $0 })) {

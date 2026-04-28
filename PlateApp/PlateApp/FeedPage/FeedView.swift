@@ -31,7 +31,51 @@ struct FeedView: View {
                         }
 
                         Spacer().frame(height: 50)
+                        VStack(spacing: 20) {
+                                    ZStack {
+                                        Circle()
+                                            .fill(Color.accentColor.opacity(0.1))
+                                            .frame(width: 80, height: 80)
+                                        
+                                        Image(systemName: "person.badge.plus")
+                                            .font(.system(size: 30, weight: .semibold))
+                                            .foregroundStyle(Color.accentColor)
+                                    }
+                                    
+                                    VStack(spacing: 8) {
+                                        Text("You're all caught up!")
+                                            .font(.headline)
+                                        
+                                        Text("Add more friends to see what they're eating today.")
+                                            .font(.subheadline)
+                                            .foregroundStyle(.secondary)
+                                            .multilineTextAlignment(.center)
+                                            .padding(.horizontal, 20)
+                                    }
+                                    
+                                    NavigationLink(destination: ProfileView()) {
+                                        Text("Find Friends")
+                                            .font(.subheadline.bold())
+                                            .foregroundStyle(.white)
+                                            .padding(.horizontal, 24)
+                                            .padding(.vertical, 12)
+                                            .background(Color.accentColor)
+                                            .cornerRadius(20)
+                                    }
+                                }
+                                .padding(.vertical, 40)
+                                .padding(.horizontal, 20)
+                                .frame(maxWidth: .infinity)
+                                .background {
+                                    RoundedRectangle(cornerRadius: 24)
+                                        .strokeBorder(style: StrokeStyle(lineWidth: 2, dash: [6]))
+                                        .foregroundStyle(.quaternary)
+                                }
+                                .padding(.horizontal, 24)
                     }
+                }
+                .refreshable {
+                    await viewModel.fetchPosts()
                 }
             }
             .toolbar {
