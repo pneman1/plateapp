@@ -20,7 +20,6 @@ struct UploadView: View {
     @State private var caption: String = ""
     @State private var restaurantName: String = ""
     @State private var isUploading = false
-    
     @State private var rating: Int = 5
     @State private var mealType: String = "Lunch"
 

@@ -11,10 +11,7 @@ import FirebaseFirestore
 struct FeedView: View {
     @EnvironmentObject var authVM: AuthViewModel
     @StateObject private var viewModel = FeedViewModel()
-    
     @State private var showingUpload = false
-
-    @State private var userHasPostedToday: Bool = true
 
     var body: some View {
         NavigationStack {
@@ -30,7 +27,6 @@ struct FeedView: View {
                         
                         ForEach(viewModel.posts) { post in
                             FeedCardView(post: post,
-                                         isLocked: !userHasPostedToday,
                                          viewModel: viewModel)
                         }
 
@@ -58,9 +54,8 @@ struct FeedView: View {
 
 struct FeedCardView: View {
     let post: Post
-    let isLocked: Bool
-    
     let viewModel: FeedViewModel
+    @EnvironmentObject var authVM: AuthViewModel
     
 
     @State private var cityName: String = "Loading..."
@@ -142,7 +137,7 @@ struct FeedCardView: View {
                         .cornerRadius(30)
                 )
 
-                if isLocked {
+                if !(authVM.user?.hasPosted ?? false) {
                     Rectangle()
                         .fill(.ultraThinMaterial)
                         .overlay(

@@ -78,4 +78,5 @@ struct UserInfo: Codable, Identifiable {
     var profileImageURL: String
     var createdAt: Date?
     var updatedAt: Date?
+    var hasPosted: Bool
 }

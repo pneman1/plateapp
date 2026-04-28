@@ -18,13 +18,14 @@ class AuthViewModel: ObservableObject {
     @Published var isAuthenticated: Bool = false
     @Published var errorMessage: String? = nil
     @Published var username = ""
+    @State private var currentUserID = ""
     private var db = Firestore.firestore()
     
     @Published var user: UserInfo? = nil
     
     init() {
         // Check if we already have a session
-        if let _ = Auth.auth().currentUser {
+        if let currentUserID = Auth.auth().currentUser {
             Task {
                 await fetchCurrentUser()
             }
@@ -37,11 +38,38 @@ class AuthViewModel: ObservableObject {
     }
     
     @MainActor
+    func setHasPosted() async {
+        user?.hasPosted.toggle()
+        
+        var updatePayload: [String: Bool] = ["hasPosted": user?.hasPosted ?? false]
+        
+        do {
+            let userSnapshot = try await db.collection("users")
+                .whereField(FieldPath.documentID(), isEqualTo: currentUserID)
+                .getDocuments()
+            
+            guard let document = userSnapshot.documents.first else {
+                print("No current user found.")
+                return
+            }
+            
+            try await document.reference.updateData(updatePayload)
+        } catch {
+            print("Failed finding current user.")
+        }
+        
+    
+        
+    }
+    
+    @MainActor
     func fetchCurrentUser() async {
         guard let uid = Auth.auth().currentUser?.uid else {
             self.user = nil
             return
         }
+        
+        currentUserID = uid
         
         do {
             // 2. Fetch the document from the "users" collection
@@ -117,7 +145,8 @@ class AuthViewModel: ObservableObject {
                     email: email,
                     profileImageURL: "",
                     createdAt : Date(),
-                    updatedAt: Date()
+                    updatedAt: Date(),
+                    hasPosted: false
                 )
                 
                 try db.collection("users").document(uid).setData(from: newUser)
