@@ -20,7 +20,6 @@ struct UploadView: View {
     @State private var caption: String = ""
     @State private var restaurantName: String = ""
     @State private var isUploading = false
-    
     @State private var rating: Int = 5
     @State private var mealType: String = "Lunch"
 
@@ -116,6 +115,9 @@ struct UploadView: View {
             case .success(let url):
                 // Step B: Once we have the real URL, save to Firestore
                 saveToFirestore(imageURL: url.absoluteString)
+                Task {
+                    await authVM.setHasPosted(flag: true)
+                }
             case .failure(let error):
                 print("Error uploading image: \(error.localizedDescription)")
                 isUploading = false

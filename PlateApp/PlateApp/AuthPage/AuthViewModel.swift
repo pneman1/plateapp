@@ -37,6 +37,28 @@ class AuthViewModel: ObservableObject {
     }
     
     @MainActor
+    func setHasPosted(flag: Bool) async {
+        guard let uid = Auth.auth().currentUser?.uid else {
+                print("No authenticated user found.")
+                return
+            }
+        
+        var updatePayload: [String: Bool] = ["hasPosted": flag]
+        
+        do {
+            let userDocRef = db.collection("users").document(uid)
+            
+            try await userDocRef.updateData(updatePayload)
+            print("Successfully updated hasPosted to \(flag)")
+        } catch {
+            print("Failed finding current user.")
+        }
+        
+        await fetchCurrentUser()
+        
+    }
+    
+    @MainActor
     func fetchCurrentUser() async {
         guard let uid = Auth.auth().currentUser?.uid else {
             self.user = nil
@@ -117,7 +139,8 @@ class AuthViewModel: ObservableObject {
                     email: email,
                     profileImageURL: "",
                     createdAt : Date(),
-                    updatedAt: Date()
+                    updatedAt: Date(),
+                    hasPosted: false
                 )
                 
                 try db.collection("users").document(uid).setData(from: newUser)

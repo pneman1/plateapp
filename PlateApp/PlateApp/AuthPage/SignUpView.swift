@@ -12,81 +12,98 @@ struct SignUpView: View {
     @State private var attempts: CGFloat = 0
     
     var body: some View {
-        VStack(alignment: .center, spacing: 50) {
-            Text("Sign up with Email")
-                .font(.title)
-                .bold()
-            VStack(alignment: .leading, spacing: 5) {
-                Text("Email")
-                TextField("example$@gmail.com", text: $viewModel.email)
-                    .padding()
-                    .onChange(of: viewModel.email) { _,_ in
-                        viewModel.errorMessage = nil
-                    }
-                    .frame(width: 300, height: 50)
-                    .textInputAutocapitalization(.never)
-                    .autocorrectionDisabled(true)
-                    .keyboardType(.emailAddress)
-                    .cornerRadius(6)
-                    .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color(.gray), lineWidth: 1))
-                Text("Username")
-                TextField("Username", text: $viewModel.username)
-                    .padding()
-                    .onChange(of: viewModel.username) { _,_ in
-                        viewModel.errorMessage = nil
-                    }
-                    .frame(width: 300, height: 50)
-                    .textInputAutocapitalization(.never)
-                    .autocorrectionDisabled(true)
-                    .keyboardType(.default)
-                    .cornerRadius(6)
-                    .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color(.gray), lineWidth: 1))
-                Text("Password")
-                SecureField("Password", text: $viewModel.password)
-                    .padding()
-                    .onChange(of: viewModel.password) { _,_ in
-                        withAnimation {
+        ScrollView {
+            VStack(alignment: .center, spacing: 20) {
+                Text("Create an Account")
+                    .foregroundStyle(.white)
+                    .font(.system(.largeTitle, design: .rounded))
+                    .bold()
+                    .padding(.top, 80)
+                VStack(alignment: .leading, spacing: 5) {
+                    Text("Email")
+                    TextField("example$@gmail.com", text: $viewModel.email)
+                        .padding()
+                        .background(Color(.systemGray6))
+                        .cornerRadius(10)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 10)
+                                .stroke(Color(.systemGray4), lineWidth: 0.5)
+                        )
+                        .onChange(of: viewModel.email) { _,_ in
                             viewModel.errorMessage = nil
                         }
-                    }
-                    .frame(width: 300, height: 50)
-                    .cornerRadius(6)
-                    .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color(.gray), lineWidth: 1))
-                Text("Confirm Password")
-                SecureField("Confirm Password", text: $confirmedPassword)
-                    .padding()
-                    .onChange(of: confirmedPassword) { _,_ in
-                        withAnimation {
+                        .textInputAutocapitalization(.never)
+                        .autocorrectionDisabled(true)
+                        .keyboardType(.emailAddress)
+                    Text("Username")
+                    TextField("Username", text: $viewModel.username)
+                        .padding()
+                        .background(Color(.systemGray6))
+                        .cornerRadius(10)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 10)
+                                .stroke(Color(.systemGray4), lineWidth: 0.5)
+                        )
+                        .onChange(of: viewModel.username) { _,_ in
                             viewModel.errorMessage = nil
                         }
+                        .textInputAutocapitalization(.never)
+                        .autocorrectionDisabled(true)
+                        .keyboardType(.default)
+                    Text("Password")
+                    SecureField("Password", text: $viewModel.password)
+                        .padding()
+                        .background(Color(.systemGray6))
+                        .cornerRadius(10)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 10)
+                                .stroke(Color(.systemGray4), lineWidth: 0.5)
+                        )
+                        .onChange(of: viewModel.password) { _,_ in
+                            withAnimation {
+                                viewModel.errorMessage = nil
+                            }
+                        }
+                    Text("Confirm Password")
+                    SecureField("Confirm Password", text: $confirmedPassword)
+                        .padding()
+                        .background(Color(.systemGray6))
+                        .cornerRadius(10)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 10)
+                                .stroke(Color(.systemGray4), lineWidth: 0.5)
+                        )
+                        .onChange(of: confirmedPassword) { _,_ in
+                            withAnimation {
+                                viewModel.errorMessage = nil
+                            }
+                        }
+                    
+                    if let error = viewModel.errorMessage {
+                        Text(error)
+                            .font(.caption)
+                            .foregroundStyle(.red)
+                            .transition(.opacity)
                     }
-                    .frame(width: 300, height: 50)
-                    .cornerRadius(6)
-                    .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color(.gray), lineWidth: 1))
-                
-                if let error = viewModel.errorMessage {
-                    Text(error)
-                        .font(.caption)
-                        .foregroundStyle(.red)
-                        .transition(.opacity)
                 }
+                
+                Button(action: {
+                    viewModel.signUp()
+                }) {
+                    Text("Create Account")
+                        .fontWeight(.semibold)
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(Color(.primary))
+                        .foregroundColor(.white)
+                        .cornerRadius(10)
+                        .shadow(color: Color(.primary).opacity(0.3), radius: 10, x: 0, y: 5)
+                }
+                
             }
-            
-            Button(action: {
-                viewModel.signUp()
-            }) {
-                Text("Create Account")
-                    .fontWeight(.semibold)
-                    .frame(maxWidth: .infinity)
-                    .padding()
-                    .background(Color(.primary))
-                    .foregroundColor(.white)
-                    .cornerRadius(10)
-            }
-            .padding(.horizontal)
-            .padding(.bottom)
-            
+            .padding(.horizontal, 24)
         }
+        
     }
 }
 

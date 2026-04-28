@@ -118,7 +118,7 @@ struct ProfileView: View {
                 }
 
                 VStack(alignment: .leading, spacing: 6) {
-                    Text(profile.displayName)
+                    Text(authVM.user?.username ?? "No Username Found")
                         .font(.system(size: 28, weight: .black))
                         .foregroundStyle(.white)
 

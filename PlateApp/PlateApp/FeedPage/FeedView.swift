@@ -11,13 +11,10 @@ import FirebaseFirestore
 struct FeedView: View {
     @EnvironmentObject var authVM: AuthViewModel
     @StateObject private var viewModel = FeedViewModel()
-    
     @State private var showingUpload = false
 
-    @State private var userHasPostedToday: Bool = true
-
     var body: some View {
-        NavigationView {
+        NavigationStack {
             ZStack {
                 Color.black.ignoresSafeArea()
 
@@ -30,7 +27,6 @@ struct FeedView: View {
                         
                         ForEach(viewModel.posts) { post in
                             FeedCardView(post: post,
-                                         isLocked: !userHasPostedToday,
                                          viewModel: viewModel)
                         }
 
@@ -58,9 +54,8 @@ struct FeedView: View {
 
 struct FeedCardView: View {
     let post: Post
-    let isLocked: Bool
-    
     let viewModel: FeedViewModel
+    @EnvironmentObject var authVM: AuthViewModel
     
 
     @State private var cityName: String = "Loading..."
@@ -88,6 +83,9 @@ struct FeedCardView: View {
                 Button(action: {
                     print("Delete tapped for post: \(post.id)")
                     viewModel.deletePost(postID: post.id)
+                    Task {
+                        await authVM.setHasPosted(flag: false)
+                    }
                 }) {
                     Image(systemName: "trash")
                         .foregroundColor(.red)
@@ -142,7 +140,7 @@ struct FeedCardView: View {
                         .cornerRadius(30)
                 )
 
-                if isLocked {
+                if !(authVM.user?.hasPosted ?? false) {
                     Rectangle()
                         .fill(.ultraThinMaterial)
                         .overlay(
