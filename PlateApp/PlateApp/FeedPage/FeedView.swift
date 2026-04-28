@@ -106,6 +106,8 @@ struct FeedCardView: View {
     
 
     @State private var cityName: String = "Loading..."
+    @State private var showingDeleteAlert: Bool = false
+    @State private var pendingDeletePostID: String? = nil
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -126,23 +128,39 @@ struct FeedCardView: View {
                 }
 
                 Spacer()
-                
-                Button(action: {
-                    print("Delete tapped for post: \(post.id)")
-                    viewModel.deletePost(postID: post.id)
-                    Task {
-                        await authVM.setHasPosted(flag: false)
+
+                // Show delete button only for the user's own posts
+                if post.userID == authVM.user?.id {
+                    Button(action: {
+                        // Defer actual deletion until user confirms
+                        pendingDeletePostID = post.id
+                        showingDeleteAlert = true
+                    }) {
+                        Image(systemName: "trash")
+                            .foregroundColor(.red)
+                            .padding(12)           // Even bigger hit area
+                            .background(Color.white.opacity(0.2))
+                            .clipShape(Circle())
                     }
-                }) {
-                    Image(systemName: "trash")
-                        .foregroundColor(.red)
-                        .padding(12)           // Even bigger hit area
-                        .background(Color.white.opacity(0.2))
-                        .clipShape(Circle())
+                    .buttonStyle(PlainButtonStyle())
+                    .contentShape(Circle())        // Explicitly define tappable area
+                    .zIndex(100)                   // Much higher to ensure it's on top
+                    .alert("Delete Post?", isPresented: $showingDeleteAlert, presenting: pendingDeletePostID) { postID in
+                        Button("Delete", role: .destructive) {
+                            print("Confirmed delete for post: \(postID)")
+                            viewModel.deletePost(postID: postID)
+                            Task {
+                                await authVM.setHasPosted(flag: false)
+                            }
+                            pendingDeletePostID = nil
+                        }
+                        Button("Cancel", role: .cancel) {
+                            pendingDeletePostID = nil
+                        }
+                    } message: { _ in
+                        Text("Are you sure you want to delete this post? This action cannot be undone.")
+                    }
                 }
-                .buttonStyle(PlainButtonStyle())
-                .contentShape(Circle())        // Explicitly define tappable area
-                .zIndex(100)                   // Much higher to ensure it's on top
 
             }
             .padding(.horizontal, 20)
