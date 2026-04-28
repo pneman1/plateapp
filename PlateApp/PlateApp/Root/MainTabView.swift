@@ -13,7 +13,7 @@ struct MainTabView: View {
     
     var body: some View {
         TabView(selection: $selectedTab) {
-            FeedView()
+            FeedView(selectedTab: $selectedTab)
                 .tabItem {
                     Label("Feed", systemImage: "house.fill")
                 }
