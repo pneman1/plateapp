@@ -10,6 +10,7 @@ import FirebaseFirestore
 
 struct FeedView: View {
     @EnvironmentObject var authVM: AuthViewModel
+    @Binding var selectedTab: Int
     @StateObject private var viewModel = FeedViewModel()
     @State private var showingUpload = false
 
@@ -53,14 +54,16 @@ struct FeedView: View {
                                             .padding(.horizontal, 20)
                                     }
                                     
-                                    NavigationLink(destination: ProfileView()) {
+                                    Button(action: {
+                                        selectedTab = 2
+                                    }) {
                                         Text("Find Friends")
-                                            .font(.subheadline.bold())
-                                            .foregroundStyle(.white)
-                                            .padding(.horizontal, 24)
-                                            .padding(.vertical, 12)
-                                            .background(Color.accentColor)
-                                            .cornerRadius(20)
+                                        .font(.subheadline.bold())
+                                        .foregroundStyle(.white)
+                                        .padding(.horizontal, 24)
+                                        .padding(.vertical, 12)
+                                        .background(Color.accentColor)
+                                        .cornerRadius(20)
                                     }
                                 }
                                 .padding(.vertical, 40)
@@ -222,6 +225,3 @@ struct FeedCardView: View {
     }
 }
 
-#Preview {
-    FeedView()
-}
