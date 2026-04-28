@@ -79,7 +79,7 @@ struct FeedView: View {
                     }
                 }
                 .refreshable {
-                    await viewModel.fetchPosts()
+                    await viewModel.refresh()
                 }
             }
             .toolbar {
@@ -102,7 +102,7 @@ struct FeedView: View {
 
 struct FeedCardView: View {
     let post: Post
-    let viewModel: FeedViewModel
+    @ObservedObject var viewModel: FeedViewModel
     @EnvironmentObject var authVM: AuthViewModel
     
 
@@ -113,10 +113,30 @@ struct FeedCardView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             HStack(spacing: 12) {
-                Image(systemName: "person.crop.circle.fill")
-                    .resizable()
-                    .frame(width: 35, height: 35)
-                    .foregroundColor(.gray)
+                // Profile avatar: use cached URL if available, otherwise fallback to system placeholder
+                VStack(spacing: 4) {
+                    if let url = viewModel.userProfileURLs[post.userID] {
+                        KFImage(url)
+                            .onFailure { err in
+#if DEBUG
+                                print("KFImage avatar failed for uid=\(post.userID) url=\(url.absoluteString) error=\(err.localizedDescription)")
+#endif
+                            }
+                            .placeholder {
+                                Image(systemName: "person.crop.circle.fill")
+                                    .resizable()
+                                    .foregroundColor(.gray)
+                            }
+                            .resizable()
+                            .frame(width: 35, height: 35)
+                            .clipShape(Circle())
+                    } else {
+                        Image(systemName: "person.crop.circle.fill")
+                            .resizable()
+                            .frame(width: 35, height: 35)
+                            .foregroundColor(.gray)
+                    }
+                }
 
                 VStack(alignment: .leading, spacing: 2) {
                     Text(post.username)
@@ -176,11 +196,10 @@ struct FeedCardView: View {
                     }
                     .retry(maxCount: 3, interval: .seconds(1))
                     .cacheOriginalImage()
-                    .onSuccess { result in
-                        print("Image loaded successfully: \(result.cacheType)")
-                    }
                     .onFailure { error in
+#if DEBUG
                         print("Image failed to load: \(error.localizedDescription)")
+#endif
                     }
                     .resizable()
                     .aspectRatio(contentMode: .fill)
