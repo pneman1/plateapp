@@ -18,14 +18,13 @@ class AuthViewModel: ObservableObject {
     @Published var isAuthenticated: Bool = false
     @Published var errorMessage: String? = nil
     @Published var username = ""
-    @State private var currentUserID = ""
     private var db = Firestore.firestore()
     
     @Published var user: UserInfo? = nil
     
     init() {
         // Check if we already have a session
-        if let currentUserID = Auth.auth().currentUser {
+        if let _ = Auth.auth().currentUser {
             Task {
                 await fetchCurrentUser()
             }
@@ -38,27 +37,24 @@ class AuthViewModel: ObservableObject {
     }
     
     @MainActor
-    func setHasPosted() async {
-        user?.hasPosted.toggle()
-        
-        var updatePayload: [String: Bool] = ["hasPosted": user?.hasPosted ?? false]
-        
-        do {
-            let userSnapshot = try await db.collection("users")
-                .whereField(FieldPath.documentID(), isEqualTo: currentUserID)
-                .getDocuments()
-            
-            guard let document = userSnapshot.documents.first else {
-                print("No current user found.")
+    func setHasPosted(flag: Bool) async {
+        guard let uid = Auth.auth().currentUser?.uid else {
+                print("No authenticated user found.")
                 return
             }
+        
+        var updatePayload: [String: Bool] = ["hasPosted": flag]
+        
+        do {
+            let userDocRef = db.collection("users").document(uid)
             
-            try await document.reference.updateData(updatePayload)
+            try await userDocRef.updateData(updatePayload)
+            print("Successfully updated hasPosted to \(flag)")
         } catch {
             print("Failed finding current user.")
         }
         
-    
+        await fetchCurrentUser()
         
     }
     
@@ -68,8 +64,6 @@ class AuthViewModel: ObservableObject {
             self.user = nil
             return
         }
-        
-        currentUserID = uid
         
         do {
             // 2. Fetch the document from the "users" collection

@@ -83,6 +83,9 @@ struct FeedCardView: View {
                 Button(action: {
                     print("Delete tapped for post: \(post.id)")
                     viewModel.deletePost(postID: post.id)
+                    Task {
+                        await authVM.setHasPosted(flag: false)
+                    }
                 }) {
                     Image(systemName: "trash")
                         .foregroundColor(.red)
