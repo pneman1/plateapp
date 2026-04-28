@@ -19,6 +19,8 @@ struct Post: Identifiable, Codable {
     let rating: Int
     let mealType: String
     let isPublic: Bool
+    // Optional flag identifying a home-cooked meal. nil or false == not home cooked.
+    let homeCooked: Bool?
 }
 
 struct PlateLocation: Codable {

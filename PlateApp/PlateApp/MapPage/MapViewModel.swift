@@ -27,8 +27,13 @@ class MapViewModel: ObservableObject {
                 return
             }
 
-            let coordinates = querySnapshot?.documents.compactMap { document in
-                Self.coordinate(from: document.data())
+            let coordinates = querySnapshot?.documents.compactMap { document -> CLLocationCoordinate2D? in
+                let data = document.data()
+                // If the post is marked homeCooked=true, exclude it from the map
+                if let homeCooked = data["homeCooked"] as? Bool, homeCooked {
+                    return nil
+                }
+                return Self.coordinate(from: data)
             } ?? []
 
             let hotspots = Self.cluster(coordinates)
