@@ -17,7 +17,7 @@ struct FeedView: View {
     @State private var userHasPostedToday: Bool = true
 
     var body: some View {
-        NavigationView {
+        NavigationStack {
             ZStack {
                 Color.black.ignoresSafeArea()
 

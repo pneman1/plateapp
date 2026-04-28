@@ -102,7 +102,6 @@ final class ProfileViewModel: ObservableObject {
 
     private func makeProfileSummary(for user: User, posts: [Post], profileImageURL: String? = nil) -> ProfileSummary {
         let email = user.email ?? "No email found"
-        let defaultDisplayName = email.split(separator: "@").first.map(String.init) ?? "Plate User"
         let displayName = posts.first?.username
         let joinedDate = user.metadata.creationDate.map(Self.dateFormatter.string(from:)) ?? "Recently joined"
         let publicPosts = posts.filter(\.isPublic).count
