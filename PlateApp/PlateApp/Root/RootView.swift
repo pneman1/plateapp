@@ -11,17 +11,38 @@ struct RootView: View {
     
     var body: some View {
         Group {
-            if authVM.isAuthenticated {
+            if authVM.isInitialLoading {
+                
+            } else if authVM.isAuthenticated{
                 MainTabView()
                     .environmentObject(authVM)
-            }
-            else {
+            } else {
                 NavigationStack {
                     AuthView()
                 }
                 .environmentObject(authVM)
             }
         }
+        .animation(.easeInOut, value: authVM.isInitialLoading)
+        .animation(.easeInOut, value: authVM.isAuthenticated)
+    }
+}
+
+struct LoadingView: View {
+    var body: some View {
+        ZStack {
+                    Color.black.ignoresSafeArea()
+                    VStack(spacing: 20) {
+                        Image(systemName: "fork.knife.circle.fill")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 80, height: 80)
+                            .foregroundStyle(Color.accentColor)
+                        
+                        ProgressView()
+                            .tint(.white)
+                    }
+                }
     }
 }
 

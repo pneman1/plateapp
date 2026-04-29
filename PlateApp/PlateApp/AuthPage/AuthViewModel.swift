@@ -18,17 +18,42 @@ class AuthViewModel: ObservableObject {
     @Published var isAuthenticated: Bool = false
     @Published var errorMessage: String? = nil
     @Published var username = ""
+    @Published var isInitialLoading = true
     private var db = Firestore.firestore()
     
     @Published var user: UserInfo? = nil
     
     init() {
-        // Check if we already have a session
-        if let _ = Auth.auth().currentUser {
-            Task {
-                await fetchCurrentUser()
+        checkAuthentication()
+    }
+    
+    func checkAuthentication() {
+        // This replaces your manual checks in init
+            Auth.auth().addStateDidChangeListener { [weak self] _, firebaseUser in
+                guard let self = self else { return }
+                
+                Task {
+                    if let firebaseUser = firebaseUser {
+                        // Someone is logged in! Now fetch their "Plate" profile
+                        await self.fetchCurrentUser()
+                        
+                        // Only set authenticated to true AFTER we have the Firestore data
+                        await MainActor.run {
+                            withAnimation {
+                                self.isInitialLoading = false // From previous prompt
+                                self.isAuthenticated = (self.user != nil)
+                            }
+                        }
+                    } else {
+                        // No one is logged in
+                        await MainActor.run {
+                            self.user = nil
+                            self.isAuthenticated = false
+                            self.isInitialLoading = false
+                        }
+                    }
+                }
             }
-        }
     }
     
     @MainActor
