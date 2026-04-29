@@ -56,6 +56,18 @@ class AuthViewModel: ObservableObject {
             }
     }
     
+    func completeOnboarding() async {
+        guard let uid = Auth.auth().currentUser?.uid else { return }
+        do {
+            try await db.collection("users").document(uid).updateData([
+                "onboardingCompleted": true
+            ])
+            self.user?.onboardingCompleted = true
+        } catch {
+            print("Error completing onboarding: \(error)")
+        }
+    }
+    
     @MainActor
     private func setError(_ message : String) {
         self.errorMessage = message
@@ -165,6 +177,7 @@ class AuthViewModel: ObservableObject {
                 
                 let newUser = UserInfo(
                     id: uid,
+                    onboardingCompleted: false,
                     username: username,
                     email: email,
                     profileImageURL: "",
@@ -175,10 +188,11 @@ class AuthViewModel: ObservableObject {
                 
                 try db.collection("users").document(uid).setData(from: newUser)
                 
-                self.user = newUser
+                
                 
                 await MainActor.run {
                     withAnimation {
+                        self.user = newUser
                         self.isAuthenticated = true
                     }
                 }

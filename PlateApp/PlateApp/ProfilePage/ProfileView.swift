@@ -40,6 +40,8 @@ struct ProfileView: View {
                         IncomingRequestsView(currentUserID: uid)
                     }
                     
+                    Color.clear.frame(height: 50)
+                    
                     Button("Log Out") {
                         authVM.signOut()
                     }

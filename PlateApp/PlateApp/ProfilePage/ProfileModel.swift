@@ -20,7 +20,7 @@ struct ProfileSummary {
     let profileImageURL: String?
 }
 
-struct UserProfile: Codable, Identifiable {
+struct UserProfile: Codable, Identifiable, Equatable {
     @DocumentID var id: String?
     var username: String
     var profileImageURL: String

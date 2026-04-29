@@ -11,17 +11,28 @@ struct RootView: View {
     
     var body: some View {
         Group {
-            if authVM.isInitialLoading {
-                
-            } else if authVM.isAuthenticated{
-                MainTabView()
-                    .environmentObject(authVM)
-            } else {
-                NavigationStack {
-                    AuthView()
-                }
-                .environmentObject(authVM)
-            }
+                    if authVM.isInitialLoading {
+                        // 1. Loading Screen
+                        LoadingView()
+                    } else if authVM.isAuthenticated {
+                        // 2. User is logged in, but check if they've finished onboarding
+                        if let user = authVM.user, !user.onboardingCompleted {
+                            OnboardingView()
+                                .environmentObject(authVM)
+                                .transition(.move(edge: .trailing))
+                        } else {
+                            // 3. Main App Experience
+                            MainTabView()
+                                .environmentObject(authVM)
+                                .transition(.opacity)
+                        }
+                    } else {
+                        // 4. Not logged in
+                        NavigationStack {
+                            AuthView()
+                        }
+                        .environmentObject(authVM)
+                    }
         }
         .animation(.easeInOut, value: authVM.isInitialLoading)
         .animation(.easeInOut, value: authVM.isAuthenticated)
