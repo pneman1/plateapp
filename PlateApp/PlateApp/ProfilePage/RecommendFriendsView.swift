@@ -6,6 +6,7 @@
 //
 import SwiftUI
 import Firebase
+import Kingfisher
 
 struct RecommendFriendsView: View {
     @StateObject var viewModel = RecommendationViewModel()
@@ -19,42 +20,65 @@ struct RecommendFriendsView: View {
                 .foregroundColor(.gray)
                 .padding(.horizontal)
             
-            ForEach(viewModel.suggestedUsers) { user in
-                HStack {
-                    // Profile Image
-                    AsyncImage(url: URL(string: user.profileImageURL)) { image in
-                        image.resizable()
-                    } placeholder: {
-                        Circle().fill(Color.gray.opacity(0.3))
-                    }
-                    .frame(width: 45, height: 45)
-                    .clipShape(Circle())
-                    
-                    VStack(alignment: .leading) {
-                        Text(user.username)
-                            .fontWeight(.semibold)
-                        Text("Suggested for you")
-                            .font(.caption)
-                            .foregroundColor(.gray)
-                    }
-                    
-                    Spacer()
-                    
-                    Button(action: {
-                        viewModel.sendRequest(from: currentUserID, to: user)
-                    }) {
-                        Text("ADD")
-                            .font(.system(size: 14, weight: .bold))
-                            .foregroundColor(.white)
-                            .padding(.horizontal, 16)
-                            .padding(.vertical, 8)
-                            .background(Color.blue)
-                            .cornerRadius(20)
+            ScrollView(.horizontal, showsIndicators: false) {
+                LazyHStack(spacing: 12) {
+                    ForEach(viewModel.suggestedUsers) { user in
+                        VStack(spacing: 12) {
+                            HStack {
+                                Spacer()
+                                Button(action: {
+                                    print("Dismissed friend request.")
+                                }) {
+                                    Image(systemName: "xmark")
+                                        .font(.system(size: 12, weight: .bold))
+                                        .foregroundColor(.secondary)
+                                        .padding(8)
+                                        .background(Color.white.opacity(0.1)) // Subtle touch area
+                                        .clipShape(Circle())
+                                }
+                            }
+                            .padding([.top, .trailing], 8)
+                            
+                            
+                            KFImage(URL(string: user.profileImageURL))
+                                .placeholder { Circle().fill(Color.gray.opacity(0.3)) }
+                                .resizable()
+                                .aspectRatio(contentMode: .fill)
+                                .frame(width: 140, height: 140)
+                                .clipShape(Circle())
+                            
+                            VStack(spacing: 2) {
+                                Text(user.username)
+                                    .font(.system(size: 14, weight: .bold))
+                                    .foregroundColor(.white)
+                                    .lineLimit(1)
+                                
+                                Text("Suggested for you")
+                                    .font(.system(size: 11))
+                                    .foregroundColor(.gray)
+                            }
+                            
+                            Button(action: {
+                                viewModel.sendRequest(from: currentUserID, to: user)
+                            }) {
+                                Text("ADD")
+                                    .font(.system(size: 14, weight: .bold))
+                                    .foregroundColor(.white)
+                                    .padding(.horizontal, 16)
+                                    .padding(.vertical, 8)
+                                    .background(Color.blue)
+                                    .cornerRadius(20)
+                            }
+                            .padding(.horizontal, 12)
+                            .padding(.bottom, 12)
+                        }
+                        .frame(width: 200)
+                        .background(Color(white: 0.12))
+                        .cornerRadius(18)
                     }
                 }
-                .padding(.horizontal)
-                .padding(.vertical, 4)
             }
+            .padding(.horizontal)
         }
         .task {
             await viewModel.fetchRecommendations(currentUserID: currentUserID)
