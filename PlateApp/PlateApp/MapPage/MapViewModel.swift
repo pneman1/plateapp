@@ -9,17 +9,24 @@ import CoreLocation
 import FirebaseFirestore
 import Foundation
 
-class MapViewModel: ObservableObject {
-    @Published var hotspots: [MapHotspot] = []
+@MainActor
+final class MapViewModel: ObservableObject {
+    @Published var clusters: [MapPhotoCluster] = []
 
     private let db = Firestore.firestore()
+    private var listener: ListenerRegistration?
 
     init() {
-        fetchHotspots()
+        fetchClusters()
     }
 
-    private func fetchHotspots() {
-        db.collection("images").addSnapshotListener { [weak self] querySnapshot, error in
+    deinit {
+        listener?.remove()
+    }
+
+    private func fetchClusters() {
+        listener?.remove()
+        listener = db.collection("images").addSnapshotListener { [weak self] querySnapshot, error in
             guard let self else { return }
 
             if let error = error {
@@ -27,67 +34,52 @@ class MapViewModel: ObservableObject {
                 return
             }
 
-            let coordinates = querySnapshot?.documents.compactMap { document -> CLLocationCoordinate2D? in
-                let data = document.data()
-                // If the post is marked homeCooked=true, exclude it from the map
-                if let homeCooked = data["homeCooked"] as? Bool, homeCooked {
-                    return nil
-                }
-                return Self.coordinate(from: data)
+            let posts = querySnapshot?.documents.compactMap { document -> Post? in
+                try? document.data(as: Post.self)
             } ?? []
 
-            let hotspots = Self.cluster(coordinates)
+            let visiblePosts = posts
+                .filter { $0.homeCooked != true }
+                .sorted { $0.timestamp > $1.timestamp }
 
-            DispatchQueue.main.async {
-                self.hotspots = hotspots
-            }
+            self.clusters = Self.cluster(visiblePosts)
         }
     }
 
-    private static func coordinate(from data: [String: Any]) -> CLLocationCoordinate2D? {
-        if let location = data["location"] as? [String: Any] {
-            if let geopoint = location["geopoint"] as? FirebaseFirestore.GeoPoint {
-                return CLLocationCoordinate2D(latitude: geopoint.latitude, longitude: geopoint.longitude)
-            }
+    private static func cluster(_ posts: [Post]) -> [MapPhotoCluster] {
+        let gridSize = 0.008
+        var buckets: [String: [Post]] = [:]
 
-            if let latitude = location["latitude"] as? Double,
-               let longitude = location["longitude"] as? Double {
-                return CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
-            }
-        }
+        for post in posts {
+            let coordinate = CLLocationCoordinate2D(
+                latitude: post.location.geopoint.latitude,
+                longitude: post.location.geopoint.longitude
+            )
 
-        if let geopoint = data["geopoint"] as? FirebaseFirestore.GeoPoint {
-            return CLLocationCoordinate2D(latitude: geopoint.latitude, longitude: geopoint.longitude)
-        }
-
-        if let latitude = data["latitude"] as? Double,
-           let longitude = data["longitude"] as? Double {
-            return CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
-        }
-
-        return nil
-    }
-
-    private static func cluster(_ coordinates: [CLLocationCoordinate2D]) -> [MapHotspot] {
-        let gridSize = 0.01
-        var buckets: [String: [CLLocationCoordinate2D]] = [:]
-
-        for coordinate in coordinates {
             let latBucket = (coordinate.latitude / gridSize).rounded() * gridSize
             let lonBucket = (coordinate.longitude / gridSize).rounded() * gridSize
             let key = "\(latBucket),\(lonBucket)"
-            buckets[key, default: []].append(coordinate)
+            buckets[key, default: []].append(post)
         }
 
-        return buckets.map { key, coordinates in
-            let latitude = coordinates.map(\.latitude).reduce(0, +) / Double(coordinates.count)
-            let longitude = coordinates.map(\.longitude).reduce(0, +) / Double(coordinates.count)
+        return buckets.map { key, bucketPosts in
+            let latitude = bucketPosts
+                .map { $0.location.geopoint.latitude }
+                .reduce(0, +) / Double(bucketPosts.count)
+            let longitude = bucketPosts
+                .map { $0.location.geopoint.longitude }
+                .reduce(0, +) / Double(bucketPosts.count)
 
-            return MapHotspot(
+            return MapPhotoCluster(
                 id: key,
                 coordinate: CLLocationCoordinate2D(latitude: latitude, longitude: longitude),
-                postCount: coordinates.count
+                posts: bucketPosts.sorted { $0.timestamp > $1.timestamp }
             )
+        }
+        .sorted { lhs, rhs in
+            let lhsDate = lhs.coverPost?.timestamp ?? .distantPast
+            let rhsDate = rhs.coverPost?.timestamp ?? .distantPast
+            return lhsDate > rhsDate
         }
     }
 }
