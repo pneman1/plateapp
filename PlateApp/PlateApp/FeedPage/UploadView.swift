@@ -157,7 +157,7 @@ struct UploadView: View {
             ),
             rating: rating,
             mealType: mealType,
-            isPublic: true,
+            isPublic: !homeCooked,
             homeCooked: homeCooked
         )
         
