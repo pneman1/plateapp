@@ -8,8 +8,20 @@
 import CoreLocation
 import Foundation
 
-struct MapHotspot: Identifiable {
+struct MapPhotoCluster: Identifiable {
     let id: String
     let coordinate: CLLocationCoordinate2D
-    let postCount: Int
+    let posts: [Post]
+
+    var postCount: Int {
+        posts.count
+    }
+
+    var coverPost: Post? {
+        posts.first
+    }
+
+    var title: String {
+        coverPost?.location.restaurantName ?? "Plate!"
+    }
 }
