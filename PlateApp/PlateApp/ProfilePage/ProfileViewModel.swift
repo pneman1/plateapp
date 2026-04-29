@@ -104,8 +104,8 @@ final class ProfileViewModel: ObservableObject {
         let email = user.email ?? "No email found"
         let displayName = posts.first?.username
         let joinedDate = user.metadata.creationDate.map(Self.dateFormatter.string(from:)) ?? "Recently joined"
-        let publicPosts = posts.filter(\.isPublic).count
-        let privatePosts = posts.count - publicPosts
+        let privatePosts = posts.filter { $0.homeCooked == true }.count
+        let publicPosts = posts.count - privatePosts
         let favoriteSpot = Self.favoriteSpot(from: posts)
 
         return ProfileSummary(
