@@ -77,48 +77,60 @@ struct ProfileView: View {
     private func profileHeader(_ profile: ProfileSummary) -> some View {
         VStack(alignment: .leading, spacing: 16) {
             HStack(spacing: 16) {
-                ZStack {
-                    Circle()
-                        .fill(Color.white.opacity(0.14))
-                        .frame(width: 82, height: 82)
-
-                    if let localImage = viewModel.selectedImage {
-                        Image(uiImage: localImage)
-                            .resizable()
-                            .scaledToFill()
+                ZStack(alignment: .bottomTrailing) {
+                    ZStack {
+                        Circle()
+                            .fill(Color.white.opacity(0.14))
                             .frame(width: 82, height: 82)
-                            .clipShape(Circle())
-                    } else if let urlString = profile.profileImageURL, let url = URL(string: urlString) {
-                        AsyncImage(url: url) { image in
-                            image
+
+                        if let localImage = viewModel.selectedImage {
+                            Image(uiImage: localImage)
                                 .resizable()
                                 .scaledToFill()
-                        } placeholder: {
+                                .frame(width: 82, height: 82)
+                                .clipShape(Circle())
+                        } else if let urlString = profile.profileImageURL, let url = URL(string: urlString) {
+                            AsyncImage(url: url) { image in
+                                image
+                                    .resizable()
+                                    .scaledToFill()
+                            } placeholder: {
+                                ProgressView()
+                                    .tint(.white)
+                            }
+                            .frame(width: 82, height: 82)
+                            .clipShape(Circle())
+                        } else {
+                            Image(systemName: "person.crop.circle.fill")
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 70, height: 70)
+                                .foregroundStyle(.white)
+                        }
+
+                        if viewModel.isUploadingImage {
+                            Color.black.opacity(0.4)
+                                .frame(width: 82, height: 82)
+                                .clipShape(Circle())
                             ProgressView()
                                 .tint(.white)
                         }
-                        .frame(width: 82, height: 82)
-                        .clipShape(Circle())
-                    } else {
-                        Image(systemName: "person.crop.circle.fill")
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: 70, height: 70)
-                            .foregroundStyle(.white)
                     }
-
-                    if viewModel.isUploadingImage {
-                        Color.black.opacity(0.4)
-                            .frame(width: 82, height: 82)
-                            .clipShape(Circle())
-                        ProgressView()
-                            .tint(.white)
+                    if !viewModel.isUploadingImage {
+                        Image(systemName: "plus.circle.fill")
+                            .resizable()
+                            .frame(width: 24, height: 24)
+                            .symbolRenderingMode(.palette)
+                            .foregroundStyle(.white, .gray)
+                            .background(Circle().fill(.black))
+                            .offset(x: 2, y: 2)
                     }
                 }
                 .contentShape(Circle())
                 .onTapGesture {
                     print("[ProfileView] avatar tapped")
                     viewModel.isShowingImagePicker = true
+                
                 }
 
                 VStack(alignment: .leading, spacing: 6) {
