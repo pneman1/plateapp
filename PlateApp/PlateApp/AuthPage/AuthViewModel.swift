@@ -37,21 +37,26 @@ class AuthViewModel: ObservableObject {
     }
     
     @MainActor
-    func setHasPosted(flag: Bool) async {
+    func updateLastPostDate(date: Date?) async {
         guard let uid = Auth.auth().currentUser?.uid else {
                 print("No authenticated user found.")
                 return
             }
         
-        var updatePayload: [String: Bool] = ["hasPosted": flag]
+        var updatePayload: [String: Any] = [:]
+        if let date = date {
+            updatePayload["lastPostDate"] = Timestamp(date: date)
+        } else {
+            updatePayload["lastPostDate"] = FieldValue.delete()
+        }
         
         do {
             let userDocRef = db.collection("users").document(uid)
             
             try await userDocRef.updateData(updatePayload)
-            print("Successfully updated hasPosted to \(flag)")
+            print("Successfully updated lastPostDate to \(String(describing: date))")
         } catch {
-            print("Failed finding current user.")
+            print("Failed updating lastPostDate: \(error)")
         }
         
         await fetchCurrentUser()
@@ -140,7 +145,7 @@ class AuthViewModel: ObservableObject {
                     profileImageURL: "",
                     createdAt : Date(),
                     updatedAt: Date(),
-                    hasPosted: false
+                    lastPostDate: nil
                 )
                 
                 try db.collection("users").document(uid).setData(from: newUser)
