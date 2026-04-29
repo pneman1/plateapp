@@ -73,6 +73,7 @@ struct AuthModel {
 
 struct UserInfo: Codable, Identifiable {
     @DocumentID var id: String?
+    var onboardingCompleted: Bool
     var username: String
     var email: String
     var profileImageURL: String
