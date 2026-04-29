@@ -169,9 +169,8 @@ struct FeedCardView: View {
                     .alert("Delete Post?", isPresented: $showingDeleteAlert, presenting: pendingDeletePostID) { postID in
                         Button("Delete", role: .destructive) {
                             print("Confirmed delete for post: \(postID)")
-                            viewModel.deletePost(postID: postID)
                             Task {
-                                await authVM.setHasPosted(flag: false)
+                                await viewModel.deletePost(postID: postID, authVM: authVM)
                             }
                             pendingDeletePostID = nil
                         }
@@ -247,7 +246,7 @@ struct FeedCardView: View {
                         .cornerRadius(30)
                 )
 
-                if !(authVM.user?.hasPosted ?? false) {
+                if !(authVM.user?.hasPostedToday ?? false) {
                     Rectangle()
                         .fill(.ultraThinMaterial)
                         .overlay(

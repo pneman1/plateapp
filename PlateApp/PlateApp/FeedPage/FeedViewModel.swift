@@ -244,20 +244,37 @@ class FeedViewModel: ObservableObject{
         }
     }
     
-    func deletePost(postID: String?) {
+    func deletePost(postID: String?, authVM: AuthViewModel) async {
         guard let id = postID else {
             print("Error: Post ID is nil, cannot delete.")
             return
         }
         
+        guard let uid = Auth.auth().currentUser?.uid else { return }
+        
         let db = Firestore.firestore()
         
-        db.collection("images").document(id).delete { error in
-            if let error = error {
-                print("Error removing document: \(error.localizedDescription)")
+        do {
+            try await db.collection("images").document(id).delete()
+            print("Document successfully removed!")
+            
+            // Fetch the user's most recent remaining post
+            let snapshot = try await db.collection("images")
+                .whereField("userID", isEqualTo: uid)
+                .order(by: "timestamp", descending: true)
+                .limit(to: 1)
+                .getDocuments()
+            
+            if let document = snapshot.documents.first {
+                let latestPost = try document.data(as: Post.self)
+                await authVM.updateLastPostDate(date: latestPost.timestamp)
             } else {
-                print("Document successfully removed!")
+                await authVM.updateLastPostDate(date: nil)
             }
+            
+            await fetchPosts()
+        } catch {
+            print("Error deleting document or updating status: \(error.localizedDescription)")
         }
     }
 }

@@ -68,12 +68,19 @@ class RecommendationViewModel: ObservableObject {
     @MainActor
     func fetchRequests(currentUserID: String) async {
         do {
+            // Use arrayContains on userIDs to avoid any need for a composite index on recipientID + status
             let friendshipSnapshot = try await db.collection("friendships")
-                .whereField("recipientID", isEqualTo: currentUserID)
-                .whereField("status", isEqualTo: "pending")
+                .whereField("userIDs", arrayContains: currentUserID)
                 .getDocuments()
             
-            let senderIDs = friendshipSnapshot.documents.compactMap { $0.data()["senderID"] as? String }
+            let pendingDocs = friendshipSnapshot.documents.filter { doc in
+                let data = doc.data()
+                let status = data["status"] as? String
+                let recipientID = data["recipientID"] as? String
+                return status == "pending" && recipientID == currentUserID
+            }
+            
+            let senderIDs = pendingDocs.compactMap { $0.data()["senderID"] as? String }
             
             if senderIDs.isEmpty {
                         self.incomingRequests = []
@@ -81,7 +88,7 @@ class RecommendationViewModel: ObservableObject {
                         return
                     }
             
-            print(senderIDs)
+            print("Sender IDs found: \(senderIDs)")
             let usersSnapshot = try await db.collection("users")
                         .whereField(FieldPath.documentID(), in: senderIDs)
                         .getDocuments()
@@ -94,7 +101,7 @@ class RecommendationViewModel: ObservableObject {
             self.incomingRequests = profiles
     
         } catch {
-            print("Error fetching requests")
+            print("Error fetching requests: \(error.localizedDescription)")
         }
 
     }
@@ -105,26 +112,18 @@ class RecommendationViewModel: ObservableObject {
         let updatePayload: [String: Any] = ["status": "accepted"]
         
         do {
-            let friendshipSnapshot = try await db.collection("friendships")
-                .whereField("recipientID", isEqualTo: currentUserID)
-                .whereField("status", isEqualTo: "pending")
-                .whereField("senderID", isEqualTo: targetID)
-                .getDocuments()
+            // Using your deterministic ID logic from sendRequest
+            let docID = [currentUserID, targetID].sorted().joined(separator: "_")
+            let docRef = db.collection("friendships").document(docID)
             
-            
-            guard let document = friendshipSnapshot.documents.first else {
-                    print("No pending request found.")
-                    return
-                }
-
-            try await document.reference.updateData(updatePayload)
+            try await docRef.updateData(updatePayload)
             
             self.incomingRequests.removeAll(where: { $0.id == targetID })
             
             print("friendship added successfully")
             
         } catch {
-            print("error accepting friend request")
+            print("error accepting friend request: \(error.localizedDescription)")
         }
     }
     
@@ -132,26 +131,18 @@ class RecommendationViewModel: ObservableObject {
     func declineRequest(currentUserID: String, targetID: String) async {
         
         do {
-            let friendshipSnapshot = try await db.collection("friendships")
-                .whereField("recipientID", isEqualTo: currentUserID)
-                .whereField("status", isEqualTo: "pending")
-                .whereField("senderID", isEqualTo: targetID)
-                .getDocuments()
+            // Using your deterministic ID logic from sendRequest
+            let docID = [currentUserID, targetID].sorted().joined(separator: "_")
+            let docRef = db.collection("friendships").document(docID)
             
-            
-            guard let document = friendshipSnapshot.documents.first else {
-                    print("No pending request found.")
-                    return
-                }
-
-            try await document.reference.delete()
+            try await docRef.delete()
             
             self.incomingRequests.removeAll(where: { $0.id == targetID })
             
             print("friendship removed successfully")
             
         } catch {
-            print("error declining friend request")
+            print("error declining friend request: \(error.localizedDescription)")
         }
     }
 }

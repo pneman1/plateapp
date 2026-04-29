@@ -131,7 +131,7 @@ struct UploadView: View {
                 // Step B: Once we have the real URL, save to Firestore
                 saveToFirestore(imageURL: url.absoluteString)
                 Task {
-                    await authVM.setHasPosted(flag: true)
+                    await authVM.updateLastPostDate(date: Date())
                 }
             case .failure(let error):
                 print("Error uploading image: \(error.localizedDescription)")

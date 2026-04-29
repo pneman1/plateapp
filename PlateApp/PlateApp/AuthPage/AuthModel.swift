@@ -78,5 +78,10 @@ struct UserInfo: Codable, Identifiable {
     var profileImageURL: String
     var createdAt: Date?
     var updatedAt: Date?
-    var hasPosted: Bool
+    var lastPostDate: Date?
+    
+    var hasPostedToday: Bool {
+        guard let lastPostDate = lastPostDate else { return false }
+        return Calendar.current.isDateInToday(lastPostDate)
+    }
 }
