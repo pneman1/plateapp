@@ -37,7 +37,7 @@ struct LoadingView: View {
                             .resizable()
                             .scaledToFit()
                             .frame(width: 80, height: 80)
-                            .foregroundStyle(Color.accentColor)
+                            .foregroundStyle(Color(.primary))
                         
                         ProgressView()
                             .tint(.white)

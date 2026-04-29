@@ -202,9 +202,6 @@ class AuthViewModel: ObservableObject {
         Task {
             do {
                 try AuthenticationManager.shared.signOut()
-                await MainActor.run {
-                    isAuthenticated = false
-                }
                 
                 self.user = nil
                 self.email = ""
