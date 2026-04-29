@@ -19,42 +19,59 @@ struct RecommendFriendsView: View {
                 .foregroundColor(.gray)
                 .padding(.horizontal)
             
-            ForEach(viewModel.suggestedUsers) { user in
-                HStack {
-                    // Profile Image
-                    AsyncImage(url: URL(string: user.profileImageURL)) { image in
-                        image.resizable()
-                    } placeholder: {
-                        Circle().fill(Color.gray.opacity(0.3))
+            ScrollView(.horizontal, showsIndicators: false) {
+                ForEach(viewModel.suggestedUsers) { user in
+                    VStack(Spacing: 12) {
+                        HStack {
+                            Spacer()
+                            Button(action: {
+                                print("Dismissed friend request.")
+                            }) {
+                                Image(systemName: "xmark")
+                                    .font(.system(size: 12, weight: .bold))
+                                    .foregroundColor(.secondary)
+                                    .padding(8)
+                                    .background(Color.white.opacity(0.1)) // Subtle touch area
+                                    .clipShape(Circle())
+                            }
+                        }
+                        
+                        // Profile Image
+                        AsyncImage(url: URL(string: user.profileImageURL)) { image in
+                            image.resizable()
+                        } placeholder: {
+                            Circle().fill(Color.gray.opacity(0.3))
+                        }
+                        .frame(width: 45, height: 45)
+                        .clipShape(Circle())
+                        
+                        VStack(alignment: .leading) {
+                            Text(user.username)
+                                .fontWeight(.semibold)
+                            Text("Suggested for you")
+                                .font(.caption)
+                                .foregroundColor(.gray)
+                        }
+                        
+                        Spacer()
+                        
+                        Button(action: {
+                            viewModel.sendRequest(from: currentUserID, to: user)
+                        }) {
+                            Text("ADD")
+                                .font(.system(size: 14, weight: .bold))
+                                .foregroundColor(.white)
+                                .padding(.horizontal, 16)
+                                .padding(.vertical, 8)
+                                .background(Color.blue)
+                                .cornerRadius(20)
+                        }
                     }
-                    .frame(width: 45, height: 45)
-                    .clipShape(Circle())
-                    
-                    VStack(alignment: .leading) {
-                        Text(user.username)
-                            .fontWeight(.semibold)
-                        Text("Suggested for you")
-                            .font(.caption)
-                            .foregroundColor(.gray)
-                    }
-                    
-                    Spacer()
-                    
-                    Button(action: {
-                        viewModel.sendRequest(from: currentUserID, to: user)
-                    }) {
-                        Text("ADD")
-                            .font(.system(size: 14, weight: .bold))
-                            .foregroundColor(.white)
-                            .padding(.horizontal, 16)
-                            .padding(.vertical, 8)
-                            .background(Color.blue)
-                            .cornerRadius(20)
-                    }
+                    .padding(.horizontal)
+                    .padding(.vertical, 4)
                 }
-                .padding(.horizontal)
-                .padding(.vertical, 4)
             }
+            .padding(.horizontal)
         }
         .task {
             await viewModel.fetchRecommendations(currentUserID: currentUserID)
