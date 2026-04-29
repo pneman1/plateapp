@@ -48,8 +48,7 @@ struct ProfileView: View {
                     .fontWeight(.semibold)
                     .frame(maxWidth: .infinity)
                     .padding()
-                    .background(Color(.primary))
-                    .foregroundColor(.white)
+                    .foregroundColor(Color(.primary))
                     .cornerRadius(10)
                     .accessibilityIdentifier("profileLogOutButton")
                 }
