@@ -209,20 +209,18 @@ struct FeedCardView: View {
                     HStack(alignment: .bottom) {
                         VStack(alignment: .leading, spacing: 2) {
                             HStack(spacing: 2) {
-                                Text(post.location.restaurantName)
-                                    .font(.system(size: 20, weight: .semibold))
+                                if post.homeCooked == true {
+                                    Text("Home Cooked")
+                                        .font(.system(size: 20, weight: .semibold))
+                                } else {
+                                    Text(post.location.restaurantName)
+                                        .font(.system(size: 20, weight: .semibold))
+                                }
                             }
-                            if post.homeCooked == true {
-                                Text("Home Cooked")
-                                    .font(.system(size: 14, weight: .medium))
-                                    .italic()
-                                    .accessibilityIdentifier("post_homecooked_label")
-                            } else {
-                                Text(cityName)
-                                    .font(.system(size: 14, weight: .medium))
-                                    .italic()
-                                    .accessibilityIdentifier("post_city_label")
-                            }
+                            Text(cityName)
+                                .font(.system(size: 14, weight: .medium))
+                                .italic()
+                                .accessibilityIdentifier("post_city_label")
                         }
                         Spacer()
                         VStack(alignment: .trailing, spacing: 2) {
