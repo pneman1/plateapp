@@ -34,7 +34,7 @@ final class PlateAppUITests: XCTestCase {
         XCTAssertTrue(signInButton.exists, "The signInButton button should exist")
         signInButton.tap()
 
-        let signInViewTitle = app.staticTexts["Sign in with Email"]
+        let signInViewTitle = app.staticTexts["Sign in to Continue"]
         XCTAssertTrue(signInViewTitle.waitForExistence(timeout: 5), "The sign in view should be displayed")
     }
 
@@ -42,8 +42,9 @@ final class PlateAppUITests: XCTestCase {
         login()
 
         let title = app.staticTexts["feed_title_label"]
-
-        XCTAssertTrue(title.exists, "The 'Plate!' header should be visible on launch.")
+        
+        let exists = title.waitForExistence(timeout: 5)
+        XCTAssertTrue(exists, "The 'Plate!' header should be visible on launch.")
     }
 
     func testProfilePageShowsLogoutButton() {
@@ -87,8 +88,10 @@ final class PlateAppUITests: XCTestCase {
         login()
 
         let cityLabel = app.staticTexts["post_city_label"].firstMatch
+        
+        let exists = cityLabel.waitForExistence(timeout: 5)
 
-        XCTAssertTrue(cityLabel.exists, "The city label should be present on the feed card.")
+        XCTAssertTrue(exists, "The city label should be present on the feed card.")
 
         let notLoading = NSPredicate(format: "label != 'Loading...'")
         let expectation = expectation(for: notLoading, evaluatedWith: cityLabel, handler: nil)
@@ -146,7 +149,9 @@ final class PlateAppUITests: XCTestCase {
             let deleteButton = app.buttons["trash"].firstMatch
             // Note: You might need to add .accessibilityIdentifier("delete_button") to your trash button
             
-            XCTAssertTrue(deleteButton.exists, "The delete button should be visible on the feed card.")
+            let exists = deleteButton.waitForExistence(timeout: 5)
+            
+            XCTAssertTrue(exists, "The delete button should be visible on the feed card.")
             
             // 2. Capture the initial count of posts or check visibility
             let initialPost = app.staticTexts["post_city_label"].firstMatch
