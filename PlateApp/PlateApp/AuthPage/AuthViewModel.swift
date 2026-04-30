@@ -56,6 +56,7 @@ class AuthViewModel: ObservableObject {
             }
     }
     
+    @MainActor
     func completeOnboarding() async {
         guard let uid = Auth.auth().currentUser?.uid else { return }
         do {
