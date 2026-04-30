@@ -38,7 +38,7 @@ class RecommendationViewModel: ObservableObject {
                     return user
                 }
                 return nil
-            }.prefix(5).map { $0 } // Take only the first 5
+            }.prefix(10).map { $0 } // Take only the first 5
             
         } catch {
             print("Error fetching recommendations: \(error.localizedDescription)")
