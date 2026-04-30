@@ -34,7 +34,7 @@ final class PlateAppUITests: XCTestCase {
         XCTAssertTrue(signInButton.exists, "The signInButton button should exist")
         signInButton.tap()
 
-        let signInViewTitle = app.staticTexts["Sign in to Continue"]
+        let signInViewTitle = app.staticTexts["Sign in to continue"]
         XCTAssertTrue(signInViewTitle.waitForExistence(timeout: 5), "The sign in view should be displayed")
     }
 
