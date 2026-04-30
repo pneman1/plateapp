@@ -81,6 +81,11 @@ struct FeedView: View {
                 .refreshable {
                     await viewModel.refresh()
                 }
+                .onChange(of: authVM.user?.lastPostDate) { _ in
+                    Task {
+                        await viewModel.fetchPosts() // Force a listener refresh when the user posts
+                    }
+                }
             }
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {

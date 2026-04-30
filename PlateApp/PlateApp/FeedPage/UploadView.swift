@@ -130,9 +130,6 @@ struct UploadView: View {
             case .success(let url):
                 // Step B: Once we have the real URL, save to Firestore
                 saveToFirestore(imageURL: url.absoluteString)
-                Task {
-                    await authVM.updateLastPostDate(date: Date())
-                }
             case .failure(let error):
                 print("Error uploading image: \(error.localizedDescription)")
                 isUploading = false
@@ -163,6 +160,10 @@ struct UploadView: View {
         
         do {
             try db.collection("images").addDocument(from: newPost)
+            
+            Task {
+                await authVM.updateLastPostDate(date: Date())
+            }
             isUploading = false
             dismiss()
         } catch {
